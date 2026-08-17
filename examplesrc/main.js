@@ -432,7 +432,7 @@ function buildWorld() {
     { type: 'burgundy_sweater', height: 0.94, speed: 0.64, hairColor: '#382518', skinColor: '#f2cc9f', jacketColor: '#78283a', jacketAccentColor: '#a85060', pantsColor: '#a69d8b', shoesColor: '#422c1d', baseBg: '#240f16' }
   ];
 
-  function addPedestrian(path, archIndex, startIdx = 0) {
+  function addPedestrian(path, archIndex, startIdx = 0, isLoop = false) {
     const arch = PEDESTRIAN_ARCHETYPES[archIndex % PEDESTRIAN_ARCHETYPES.length];
     const startPt = path[startIdx % path.length];
     const nextPt = path[(startIdx + 1) % path.length];
@@ -444,6 +444,8 @@ function buildWorld() {
       y: startPt.y,
       angle: initAngle,
       path: path,
+      isLoop: isLoop,
+      pathDir: 1,
       waypointIdx: (startIdx + 1) % path.length,
       walkCycle: Math.random() * Math.PI * 2,
       seed: Math.random() * 100
@@ -451,7 +453,7 @@ function buildWorld() {
   }
 
   //central plazas
-  const pathTimesSquareLoop = [{ x: 36.8, y: 36.8 }, { x: 43.8, y: 36.8 }, { x: 43.8, y: 43.8 }, { x: 36.8, y: 43.8 }];
+  const pathTimesSquareLoop = [{ x: 36.8, y: 17.8 }, { x: 36.8, y: 36.8 }, { x: 43.8, y: 36.8 }, { x: 43.8, y: 17.8 }];
   const pathEmpirePlaza = [{ x: 17.8, y: 36.8 }, { x: 36.8, y: 36.8 }, { x: 36.8, y: 17.8 }, { x: 17.8, y: 17.8 }];
   const pathArasakaPlaza = [{ x: 43.8, y: 36.8 }, { x: 61.8, y: 36.8 }, { x: 61.8, y: 17.8 }, { x: 43.8, y: 17.8 }];
   const pathQuantumPlaza = [{ x: 17.8, y: 43.8 }, { x: 36.8, y: 43.8 }, { x: 36.8, y: 61.8 }, { x: 17.8, y: 61.8 }];
@@ -464,17 +466,17 @@ function buildWorld() {
   const path5thAveWest = [{ x: 36.8, y: 5.8 }, { x: 36.8, y: 11.2 }, { x: 36.8, y: 17.8 }, { x: 36.8, y: 36.8 }, { x: 36.8, y: 43.8 }, { x: 36.8, y: 61.8 }, { x: 36.8, y: 68.8 }, { x: 36.8, y: 74.2 }];
   const path5thAveEast = [{ x: 43.8, y: 74.2 }, { x: 43.8, y: 68.8 }, { x: 43.8, y: 61.8 }, { x: 43.8, y: 43.8 }, { x: 43.8, y: 36.8 }, { x: 43.8, y: 17.8 }, { x: 43.8, y: 11.2 }, { x: 43.8, y: 5.8 }];
 
-  addPedestrian(pathTimesSquareLoop, 0, 0);
-  addPedestrian(pathTimesSquareLoop, 1, 2);
-  addPedestrian(pathEmpirePlaza, 2, 0);
-  addPedestrian(pathEmpirePlaza, 3, 2);
-  addPedestrian(pathArasakaPlaza, 4, 1);
-  addPedestrian(pathQuantumPlaza, 0, 1);
-  addPedestrian(pathCafePlaza, 1, 0);
-  addPedestrian(pathBwyNorth, 2, 1);
-  addPedestrian(pathBwySouth, 3, 2);
-  addPedestrian(path5thAveWest, 4, 2);
-  addPedestrian(path5thAveEast, 5, 1);
+  addPedestrian(pathTimesSquareLoop, 0, 0, true);
+  addPedestrian(pathTimesSquareLoop, 1, 2, true);
+  addPedestrian(pathEmpirePlaza, 2, 0, true);
+  addPedestrian(pathEmpirePlaza, 3, 2, true);
+  addPedestrian(pathArasakaPlaza, 4, 1, true);
+  addPedestrian(pathQuantumPlaza, 0, 1, true);
+  addPedestrian(pathCafePlaza, 1, 0, true);
+  addPedestrian(pathBwyNorth, 2, 1, false);
+  addPedestrian(pathBwySouth, 3, 2, false);
+  addPedestrian(path5thAveWest, 4, 2, false);
+  addPedestrian(path5thAveEast, 5, 1, false);
 }
 
 // -------------------------------------------------------------------------
@@ -931,7 +933,26 @@ function updatePedestrians(dt) {
     const dist = Math.hypot(dx, dy);
 
     if (dist < 0.45) {
-      ped.waypointIdx = (ped.waypointIdx + 1) % ped.path.length;
+      if (ped.isLoop) {
+        ped.waypointIdx = (ped.waypointIdx + 1) % ped.path.length;
+      } else {
+        //ping-pong along linear sidewalk promenade
+        if (ped.pathDir === 1) {
+          if (ped.waypointIdx >= ped.path.length - 1) {
+            ped.pathDir = -1;
+            ped.waypointIdx = ped.path.length - 2;
+          } else {
+            ped.waypointIdx++;
+          }
+        } else {
+          if (ped.waypointIdx <= 0) {
+            ped.pathDir = 1;
+            ped.waypointIdx = 1;
+          } else {
+            ped.waypointIdx--;
+          }
+        }
+      }
       ped.stuckTimer = 0;
     } else {
       const targetAngle = Math.atan2(dy, dx);
@@ -945,17 +966,37 @@ function updatePedestrians(dt) {
       ped.y += vy * dt;
       ped.walkCycle += dt * ped.speed * 4.8;
 
-      //anti-stuck: advances waypoint if blocked >0.6s
-      if (ped.lastDistToWp !== undefined && Math.abs(dist - ped.lastDistToWp) < 0.005) {
+      //anti-stuck watchdog: only triggers after prolonged blockage (>3.5s)
+      if (ped.lastDistToWp !== undefined && Math.abs(dist - ped.lastDistToWp) < 0.003) {
         ped.stuckTimer = (ped.stuckTimer || 0) + dt;
-        if (ped.stuckTimer > 0.6) {
-          ped.waypointIdx = (ped.waypointIdx + 1) % ped.path.length;
+        if (ped.stuckTimer > 3.5) {
+          if (ped.isLoop) {
+            ped.waypointIdx = (ped.waypointIdx + 1) % ped.path.length;
+          } else {
+            ped.pathDir = -ped.pathDir;
+            ped.waypointIdx = Math.max(0, Math.min(ped.path.length - 1, ped.waypointIdx + ped.pathDir));
+          }
           ped.stuckTimer = 0;
         }
       } else {
         ped.stuckTimer = 0;
       }
       ped.lastDistToWp = dist;
+    }
+
+    //road curb guide: steer back onto sidewalk if pushed into road
+    const curTileX = Math.floor(ped.x);
+    const curTileY = Math.floor(ped.y);
+    if (curTileX >= 0 && curTileX < MAP_SIZE && curTileY >= 0 && curTileY < MAP_SIZE) {
+      if (map[curTileY * MAP_SIZE + curTileX] === 0 && !isMetropolisCrosswalk(ped.x, ped.y)) {
+        const pushBackDx = target.x - ped.x;
+        const pushBackDy = target.y - ped.y;
+        const pbDist = Math.hypot(pushBackDx, pushBackDy);
+        if (pbDist > 0.001) {
+          ped.x += (pushBackDx / pbDist) * 0.035;
+          ped.y += (pushBackDy / pbDist) * 0.035;
+        }
+      }
     }
 
     //building wall collision slide
@@ -994,6 +1035,45 @@ function updatePedestrians(dt) {
             }
           }
         }
+      }
+    }
+
+    //tree trunk collision
+    for (let t = 0; t < trees.length; t++) {
+      const tree = trees[t];
+      const pDx = ped.x - tree.x;
+      const pDy = ped.y - tree.y;
+      const pDist = Math.hypot(pDx, pDy);
+      const minTreeDist = 0.28;
+      if (pDist < minTreeDist && pDist > 0.001) {
+        ped.x = tree.x + (pDx / pDist) * minTreeDist;
+        ped.y = tree.y + (pDy / pDist) * minTreeDist;
+      }
+    }
+
+    //street lamp pole collision
+    for (let l = 0; l < streetLights.length; l++) {
+      const lamp = streetLights[l];
+      const pDx = ped.x - lamp.x;
+      const pDy = ped.y - lamp.y;
+      const pDist = Math.hypot(pDx, pDy);
+      const minLampDist = 0.22;
+      if (pDist < minLampDist && pDist > 0.001) {
+        ped.x = lamp.x + (pDx / pDist) * minLampDist;
+        ped.y = lamp.y + (pDy / pDist) * minLampDist;
+      }
+    }
+
+    //traffic light mast pole collision
+    for (let tl = 0; tl < trafficLights.length; tl++) {
+      const light = trafficLights[tl];
+      const pDx = ped.x - light.x;
+      const pDy = ped.y - light.y;
+      const pDist = Math.hypot(pDx, pDy);
+      const minTlDist = 0.22;
+      if (pDist < minTlDist && pDist > 0.001) {
+        ped.x = light.x + (pDx / pDist) * minTlDist;
+        ped.y = light.y + (pDy / pDist) * minTlDist;
       }
     }
 
@@ -1122,6 +1202,12 @@ function tryRequestPointerLock() {
 canvas.addEventListener('click', tryRequestPointerLock);
 canvas.addEventListener('mousedown', tryRequestPointerLock);
 
+const gameContainerEl = document.getElementById('game-container');
+if (gameContainerEl) {
+  gameContainerEl.addEventListener('click', tryRequestPointerLock);
+  gameContainerEl.addEventListener('mousedown', tryRequestPointerLock);
+}
+
 document.addEventListener('mousemove', (e) => {
   const overlay = document.getElementById('play-overlay');
   const isPlaying = hasStarted && (!overlay || overlay.style.display === 'none');
@@ -1145,9 +1231,10 @@ document.addEventListener('mousemove', (e) => {
 
     if (Math.abs(mx) < 400 && Math.abs(my) < 400) {
       const activeSens = player.baseTurnSpeed * (config.mouseSens || 1.0);
-      player.angle += mx * activeSens;
+      player.angle = (player.angle + mx * activeSens);
       player.pitch -= my * activeSens * 1.1;
-      player.pitch = Math.max(-2.2, Math.min(2.5, player.pitch));
+      // Allow full ~180 degree vertical look (straight up to straight down)
+      player.pitch = Math.max(-2.0, Math.min(2.0, player.pitch));
     }
   } else {
     lastScreenX = null;
@@ -1341,8 +1428,12 @@ function render3DWorld() {
   const planeY = cosPlayerAngle * halfFovTan;
 
   //precompute row distances for ground raycasting
-  for (let r = horizon + 1; r < RENDER_ROWS; r++) {
-    rowStraightDist[r] = (player.z * RENDER_ROWS * PROJECTION_SCALE) / (r - horizon);
+  for (let r = 0; r < RENDER_ROWS; r++) {
+    if (r > horizon) {
+      rowStraightDist[r] = (player.z * RENDER_ROWS * PROJECTION_SCALE) / (r - horizon);
+    } else {
+      rowStraightDist[r] = MAX_DEPTH;
+    }
   }
 
   //raycast columns for buildings & ground (planar perspective)
@@ -1427,7 +1518,7 @@ function render3DWorld() {
     const baseWallBottom = hasHit ? Math.min(RENDER_ROWS - 1, Math.ceil(horizon + (player.z * baseScreenH))) : (RENDER_ROWS - 1);
 
     //floor & streets
-    const startFloorRow = hasHit ? Math.max(horizon + 1, baseWallBottom + 1) : (horizon + 1);
+    const startFloorRow = Math.max(0, Math.min(RENDER_ROWS, hasHit ? Math.max(horizon + 1, baseWallBottom + 1) : (horizon + 1)));
 
     for (let row = startFloorRow; row < RENDER_ROWS; row++) {
       const straightDist = rowStraightDist[row];
