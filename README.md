@@ -4,7 +4,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 -  **Zero 3D Asset Files**: The entire 3D world is generated purely with implicit mathematics, procedural architectural facade shaders, and analytical geometry. No `.obj`, `.gltf`, or external textures.
 -  **True Rectilinear Planar Projection**: Custom planar camera projection matrix eliminates the classic raycaster fish-eye distortion.
