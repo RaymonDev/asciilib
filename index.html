@@ -56,6 +56,14 @@
               </button>
             </div>
 
+            <!-- particle effects toggle -->
+            <div class="ascii-config-row">
+              <span>STEAM PARTICLES:</span>
+              <button type="button" id="cfg-particles-btn" class="ascii-btn" onclick="toggleConfigParticles()">
+                [ <span id="cfg-particles-val">ON</span> ]
+              </button>
+            </div>
+
             <!-- hud toggle -->
             <div class="ascii-config-row">
               <span>HUD DISPLAY:</span>
@@ -76,9 +84,9 @@
             <div class="ascii-slider-group">
               <div class="ascii-slider-header">
                 <span>PLAYER HEIGHT:</span>
-                <span id="cfg-height-val" class="ascii-val">0.90m</span>
+                <span id="cfg-height-val" class="ascii-val">1.00m</span>
               </div>
-              <input type="range" id="cfg-height-slider" min="0.40" max="2.00" step="0.05" value="0.90"
+              <input type="range" id="cfg-height-slider" min="0.40" max="2.00" step="0.05" value="1.00"
                 oninput="updateConfigHeight(this.value)">
             </div>
 

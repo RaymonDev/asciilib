@@ -8,14 +8,33 @@ const MAX_DEPTH = 85.0;
 
 const DEFAULT_CONFIG = {
   traffic: true,
+  particles: true,
   showHud: false,
   showCrosshair: true,
-  playerHeight: 0.90,
+  playerHeight: 1.00,
   cameraFov: 70,
   mouseSens: 1.0
 };
 
 const config = { ...DEFAULT_CONFIG };
+
+function loadSavedConfig() {
+  try {
+    const saved = localStorage.getItem('asciilib_config');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      Object.assign(config, parsed);
+    }
+  } catch (e) { }
+}
+
+function saveConfig() {
+  try {
+    localStorage.setItem('asciilib_config', JSON.stringify(config));
+  } catch (e) { }
+}
+
+loadSavedConfig();
 
 let CHAR_WIDTH = 7;
 let CHAR_HEIGHT = 10;
@@ -31,6 +50,7 @@ const streetLights = [];
 const trafficLights = [];
 const vehicles = [];
 const pedestrians = [];
+const particles = [];
 
 //crosswalk zebra stripe check
 function isMetropolisCrosswalk(floorX, floorY) {
@@ -55,6 +75,55 @@ function isMetropolisCrosswalk(floorX, floorY) {
       if (floorY >= roadYMin - 1.6 && floorY <= roadYMin && floorX >= roadXMin && floorX <= roadXMax) return { isVert: false };
       //south
       if (floorY >= roadYMax && floorY <= roadYMax + 1.6 && floorX >= roadXMin && floorX <= roadXMax) return { isVert: false };
+    }
+  }
+  return null;
+}
+
+//manhole cover positions
+const MANHOLES = [
+  { x: 39.2, y: 34.0 }, //5th ave north
+  { x: 41.8, y: 48.0 }, //5th ave south
+  { x: 32.0, y: 39.2 }, //broadway west
+  { x: 49.0, y: 41.8 }, //broadway east
+  { x: 14.5, y: 25.0 }, //6th ave midtown
+  { x: 65.5, y: 25.0 }, //3rd ave east
+  { x: 25.0, y: 14.5 }, //42nd st uptown
+  { x: 50.0, y: 65.5 }  //wall st downtown
+];
+
+function getManholeDetails(floorX, floorY) {
+  for (let m = 0; m < MANHOLES.length; m++) {
+    const mh = MANHOLES[m];
+    const dx = floorX - mh.x;
+    const dy = floorY - mh.y;
+    const distSq = dx * dx + dy * dy;
+    const r = 0.28;
+    if (distSq <= r * r) {
+      const d = Math.sqrt(distSq);
+      if (d > 0.21) {
+        //outer cast iron ring
+        return {
+          ch: (Math.abs(dx) > Math.abs(dy)) ? '|' : '=',
+          color: '#64748b',
+          bg: '#1e293b'
+        };
+      } else if (d > 0.10) {
+        //slotted vent & waffle traction pattern
+        const pat = (Math.floor(floorX * 10.0) + Math.floor(floorY * 10.0)) % 2;
+        return {
+          ch: pat === 0 ? '#' : '%',
+          color: '#475569',
+          bg: '#0f172a'
+        };
+      } else {
+        //center emblem
+        return {
+          ch: '*',
+          color: '#94a3b8',
+          bg: '#0f172a'
+        };
+      }
     }
   }
   return null;
@@ -1107,13 +1176,66 @@ function updatePedestrians(dt) {
 }
 
 // -------------------------------------------------------------------------
+// 7.5 subtle steam particle engine
+// -------------------------------------------------------------------------
+let particleSpawnTimer = 0;
+
+function updateParticles(dt) {
+  if (!config.particles) {
+    particles.length = 0;
+    return;
+  }
+
+  //spawn dense steam puffs from sewer manholes
+  particleSpawnTimer += dt;
+  if (particleSpawnTimer >= 0.10) {
+    particleSpawnTimer = 0;
+    for (let m = 0; m < MANHOLES.length; m++) {
+      const mh = MANHOLES[m];
+      const count = (Math.random() < 0.75) ? 2 : 1;
+      for (let k = 0; k < count; k++) {
+        const angle = Math.random() * Math.PI * 2;
+        const r = 0.03 + Math.random() * 0.18;
+        particles.push({
+          x: mh.x + Math.cos(angle) * r,
+          y: mh.y + Math.sin(angle) * r,
+          z: 0.02,
+          vx: (Math.random() - 0.5) * 0.06,
+          vy: (Math.random() - 0.5) * 0.06,
+          vz: 0.22 + Math.random() * 0.22,
+          life: 2.2 + Math.random() * 0.9,
+          maxLife: 3.1,
+          seed: Math.random() * 20
+        });
+      }
+    }
+  }
+
+  //update active particles with rising plume kinematics
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= dt;
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+      continue;
+    }
+
+    const age = 1.0 - (p.life / p.maxLife);
+    const spread = 0.03 * (1.0 + age * 2.2);
+    p.x += p.vx * dt + Math.sin(p.life * 4.0 + p.seed) * spread * dt;
+    p.y += p.vy * dt + Math.cos(p.life * 3.2 + p.seed) * spread * dt;
+    p.z += p.vz * dt;
+  }
+}
+
+// -------------------------------------------------------------------------
 // 8. player physics and first-person controller
 // -------------------------------------------------------------------------
 const player = {
   x: 37.0,
   y: 43.5,
-  baseHeight: 0.90,
-  z: 0.90,
+  baseHeight: 1.00,
+  z: 1.00,
   vz: 0,
   isGrounded: true,
   angle: -Math.PI / 2, //facing north
@@ -1125,10 +1247,9 @@ const player = {
 
 const keys = {};
 let isPointerLocked = false;
+let wasPointerLocked = false;
 let hasStarted = false;
-let lastPauseTime = 0;
-let lastScreenX = null;
-let lastScreenY = null;
+let isPaused = true;
 
 window.addEventListener('keydown', (e) => {
   keys[e.code] = true;
@@ -1137,17 +1258,16 @@ window.addEventListener('keydown', (e) => {
     applyConfig();
   }
   if (e.code === 'Escape') {
-    if (hasStarted) {
-      const overlay = document.getElementById('play-overlay');
-      const isOverlayVisible = overlay && overlay.style.display !== 'none';
-      if (isOverlayVisible) {
-        if (performance.now() - lastPauseTime > 200) {
-          startGame();
-        }
-      } else {
-        pauseGame();
-      }
+    e.preventDefault();
+    if (!hasStarted) return;
+    if (isPaused) {
+      startGame();
+    } else {
+      pauseGame();
     }
+  } else if (hasStarted && !isPaused && !isPointerLocked) {
+    //any active gameplay keypress (WASD, Space, Arrows) locks pointer on user gesture
+    tryRequestLock();
   }
 });
 
@@ -1156,10 +1276,11 @@ window.addEventListener('keyup', (e) => {
 });
 
 window.addEventListener('blur', () => {
-  lastScreenX = null;
-  lastScreenY = null;
   for (const k in keys) {
     keys[k] = false;
+  }
+  if (hasStarted && !isPaused) {
+    pauseGame();
   }
 });
 
@@ -1168,77 +1289,44 @@ const ctx = canvas.getContext('2d', { alpha: false });
 
 function updatePointerLockState() {
   const currentLock = document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement;
-  isPointerLocked = (currentLock === canvas);
-  if (!isPointerLocked && hasStarted) {
-    const overlay = document.getElementById('play-overlay');
-    if (!overlay || overlay.style.display === 'none') {
-      pauseGame();
-    }
+  isPointerLocked = (currentLock !== null && currentLock !== undefined);
+
+  //only pause if the pointer was previously locked and user unlocked via browser Esc
+  if (wasPointerLocked && !isPointerLocked && hasStarted && !isPaused) {
+    pauseGame();
   }
+  wasPointerLocked = isPointerLocked;
 }
 
 document.addEventListener('pointerlockchange', updatePointerLockState);
 document.addEventListener('mozpointerlockchange', updatePointerLockState);
 document.addEventListener('webkitpointerlockchange', updatePointerLockState);
 
-function tryRequestPointerLock() {
-  if (hasStarted) {
-    const overlay = document.getElementById('play-overlay');
-    const isOverlayHidden = !overlay || overlay.style.display === 'none';
-    if (isOverlayHidden) {
-      const currentLock = document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement;
-      if (currentLock !== canvas) {
-        try {
-          const promise = canvas.requestPointerLock();
-          if (promise && typeof promise.catch === 'function') {
-            promise.catch(() => { });
-          }
-        } catch (err) { }
-      }
-    }
+function tryRequestLock() {
+  if (hasStarted && !isPaused && !isPointerLocked) {
+    try {
+      canvas.focus();
+      canvas.requestPointerLock();
+    } catch (e) { }
   }
 }
 
-canvas.addEventListener('click', tryRequestPointerLock);
-canvas.addEventListener('mousedown', tryRequestPointerLock);
-
-const gameContainerEl = document.getElementById('game-container');
-if (gameContainerEl) {
-  gameContainerEl.addEventListener('click', tryRequestPointerLock);
-  gameContainerEl.addEventListener('mousedown', tryRequestPointerLock);
-}
+window.addEventListener('click', tryRequestLock);
+window.addEventListener('pointerdown', tryRequestLock);
+window.addEventListener('mousedown', tryRequestLock);
 
 document.addEventListener('mousemove', (e) => {
-  const overlay = document.getElementById('play-overlay');
-  const isPlaying = hasStarted && (!overlay || overlay.style.display === 'none');
+  if (!hasStarted || isPaused) return;
 
-  if (isPlaying) {
-    let mx = e.movementX ?? e.mozMovementX ?? e.webkitMovementX;
-    let my = e.movementY ?? e.mozMovementY ?? e.webkitMovementY;
+  const mx = e.movementX ?? 0;
+  const my = e.movementY ?? 0;
 
-    if (mx === undefined || my === undefined || (mx === 0 && my === 0 && lastScreenX !== null && (e.screenX !== lastScreenX || e.screenY !== lastScreenY))) {
-      if (lastScreenX !== null && lastScreenY !== null) {
-        mx = e.screenX - lastScreenX;
-        my = e.screenY - lastScreenY;
-      } else {
-        mx = 0;
-        my = 0;
-      }
-    }
-
-    lastScreenX = e.screenX;
-    lastScreenY = e.screenY;
-
-    if (Math.abs(mx) < 400 && Math.abs(my) < 400) {
-      const activeSens = player.baseTurnSpeed * (config.mouseSens || 1.0);
-      player.angle = (player.angle + mx * activeSens);
-      player.pitch -= my * activeSens * 1.1;
-      // Allow full ~180 degree vertical look (straight up to straight down)
-      player.pitch = Math.max(-2.0, Math.min(2.0, player.pitch));
-    }
-  } else {
-    lastScreenX = null;
-    lastScreenY = null;
+  if (Math.abs(mx) < 400 && Math.abs(my) < 400) {
+    const activeSens = player.baseTurnSpeed * (config.mouseSens || 1.0);
+    player.angle = (player.angle + mx * activeSens);
+    player.pitch -= my * activeSens * 1.1;
+    //allow full 180 degree vertical look
+    player.pitch = Math.max(-2.0, Math.min(2.0, player.pitch));
   }
 });
 
@@ -1247,21 +1335,35 @@ function updatePlayer() {
   let moveX = 0;
   let moveY = 0;
 
-  if (keys['KeyW'] || keys['ArrowUp']) {
+  if (keys['KeyW']) {
     moveX += Math.cos(player.angle) * moveSpeed;
     moveY += Math.sin(player.angle) * moveSpeed;
   }
-  if (keys['KeyS'] || keys['ArrowDown']) {
+  if (keys['KeyS']) {
     moveX -= Math.cos(player.angle) * moveSpeed;
     moveY -= Math.sin(player.angle) * moveSpeed;
   }
-  if (keys['KeyA'] || keys['ArrowLeft']) {
+  if (keys['KeyA']) {
     moveX += Math.cos(player.angle - Math.PI / 2) * moveSpeed;
     moveY += Math.sin(player.angle - Math.PI / 2) * moveSpeed;
   }
-  if (keys['KeyD'] || keys['ArrowRight']) {
+  if (keys['KeyD']) {
     moveX += Math.cos(player.angle + Math.PI / 2) * moveSpeed;
     moveY += Math.sin(player.angle + Math.PI / 2) * moveSpeed;
+  }
+  if (keys['ArrowUp']) {
+    moveX += Math.cos(player.angle) * moveSpeed;
+    moveY += Math.sin(player.angle) * moveSpeed;
+  }
+  if (keys['ArrowDown']) {
+    moveX -= Math.cos(player.angle) * moveSpeed;
+    moveY -= Math.sin(player.angle) * moveSpeed;
+  }
+  if (keys['ArrowLeft'] || keys['KeyQ']) {
+    player.angle -= 0.035;
+  }
+  if (keys['ArrowRight'] || keys['KeyE']) {
+    player.angle += 0.035;
   }
 
   //building wall collision
@@ -1371,14 +1473,20 @@ let frameBgs = null;
 let frameAlphas = null;
 let rowStraightDist = null;
 
+let fontStyle = "bold 13px 'Courier New', monospace";
+
 function resizeCanvas() {
   const w = window.innerWidth;
   const h = window.innerHeight;
   canvas.width = w;
   canvas.height = h;
 
-  CHAR_WIDTH = Math.max(6, Math.floor(w / 180));
-  CHAR_HEIGHT = Math.floor(CHAR_WIDTH * 1.45);
+  const targetFontSize = Math.max(9, Math.min(18, Math.floor(h / 72)));
+  fontStyle = `bold ${targetFontSize}px 'Courier New', monospace`;
+  ctx.font = fontStyle;
+
+  CHAR_WIDTH = ctx.measureText('M').width;
+  CHAR_HEIGHT = Math.round(targetFontSize * 1.25);
 
   RENDER_COLS = Math.floor(w / CHAR_WIDTH);
   RENDER_ROWS = Math.floor(h / CHAR_HEIGHT);
@@ -1542,70 +1650,95 @@ function render3DWorld() {
 
           //asphalt road
           if (tile === 0) {
-            const crosswalkInfo = isMetropolisCrosswalk(floorX, floorY);
-            if (crosswalkInfo) {
-              const isVertStripe = crosswalkInfo.isVert;
-              const isStripe = isVertStripe
-                ? ((((floorY % 0.8) + 0.8) % 0.8) < 0.46)
-                : ((((floorX % 0.8) + 0.8) % 0.8) < 0.46);
-
-              if (isStripe) {
-                ch = isVertStripe ? '|' : '=';
-                color = '#f1f5f9';
-              } else {
-                ch = ' ';
-                color = '#050810';
-              }
+            if (straightDist > 25.0) {
+              //far distance: uniform flat asphalt, no detail
+              ch = ' ';
+              color = '#050810';
             } else {
-              //double yellow dividing lines
-              const isEWYell = (
-                (floorY >= 2.35 && floorY <= 2.65) ||
-                (floorY >= 14.35 && floorY <= 14.65) ||
-                (floorY >= 40.35 && floorY <= 40.65) ||
-                (floorY >= 65.35 && floorY <= 65.65) ||
-                (floorY >= 77.35 && floorY <= 77.65)
-              );
-              const isNSYell = (
-                (floorX >= 2.35 && floorX <= 2.65) ||
-                (floorX >= 14.35 && floorX <= 14.65) ||
-                (floorX >= 40.35 && floorX <= 40.65) ||
-                (floorX >= 65.35 && floorX <= 65.65) ||
-                (floorX >= 77.35 && floorX <= 77.65)
-              );
-
-              if (isEWYell) {
-                const dash = Math.floor(floorX * 2.5) % 2 === 0;
-                ch = dash ? '=' : ' ';
-                color = '#ffd700';
-              } else if (isNSYell) {
-                const dash = Math.floor(floorY * 2.5) % 2 === 0;
-                ch = dash ? '|' : ' ';
-                color = '#ffd700';
+              const mh = (straightDist < 16.0) ? getManholeDetails(floorX, floorY) : null;
+              if (mh) {
+                ch = mh.ch;
+                color = mh.color;
+                floorBg = mh.bg;
               } else {
-                ch = ' ';
-                color = '#050810';
+                const crosswalkInfo = isMetropolisCrosswalk(floorX, floorY);
+                if (crosswalkInfo) {
+                  const isVertStripe = crosswalkInfo.isVert;
+                  //at distance crosswalks become solid white bands
+                  if (straightDist > 14.0) {
+                    ch = isVertStripe ? '|' : '=';
+                    color = '#c0c8d0';
+                  } else {
+                    const isStripe = isVertStripe
+                      ? ((((floorY % 0.8) + 0.8) % 0.8) < 0.46)
+                      : ((((floorX % 0.8) + 0.8) % 0.8) < 0.46);
+                    if (isStripe) {
+                      ch = isVertStripe ? '|' : '=';
+                      color = '#f1f5f9';
+                    } else {
+                      ch = ' ';
+                      color = '#050810';
+                    }
+                  }
+                } else {
+                  //double yellow dividing lines
+                  const yellHalf = Math.max(0.15, straightDist * 0.025);
+                  const isEWYell = (
+                    (Math.abs(floorY - 2.50) < yellHalf) ||
+                    (Math.abs(floorY - 14.50) < yellHalf) ||
+                    (Math.abs(floorY - 40.50) < yellHalf) ||
+                    (Math.abs(floorY - 65.50) < yellHalf) ||
+                    (Math.abs(floorY - 77.50) < yellHalf)
+                  );
+                  const isNSYell = (
+                    (Math.abs(floorX - 2.50) < yellHalf) ||
+                    (Math.abs(floorX - 14.50) < yellHalf) ||
+                    (Math.abs(floorX - 40.50) < yellHalf) ||
+                    (Math.abs(floorX - 65.50) < yellHalf) ||
+                    (Math.abs(floorX - 77.50) < yellHalf)
+                  );
+
+                  if (isEWYell) {
+                    ch = (straightDist > 10.0) ? '=' : ((Math.floor(floorX * 2.5) % 2 === 0) ? '=' : ' ');
+                    color = '#ffd700';
+                  } else if (isNSYell) {
+                    ch = (straightDist > 10.0) ? '|' : ((Math.floor(floorY * 2.5) % 2 === 0) ? '|' : ' ');
+                    color = '#ffd700';
+                  } else {
+                    ch = ' ';
+                    color = '#050810';
+                  }
+                }
               }
             }
           }
           //concrete sidewalks & curbs
           else {
-            const isNearRoadWest = (Math.abs(floorX - 0) < 0.15 || Math.abs(floorX - 12) < 0.15 || Math.abs(floorX - 38) < 0.15 || Math.abs(floorX - 63) < 0.15 || Math.abs(floorX - 75) < 0.15);
-            const isNearRoadEast = (Math.abs(floorX - 5) < 0.15 || Math.abs(floorX - 17) < 0.15 || Math.abs(floorX - 43) < 0.15 || Math.abs(floorX - 68) < 0.15 || Math.abs(floorX - 80) < 0.15);
-            const isNearRoadNorth = (Math.abs(floorY - 0) < 0.15 || Math.abs(floorY - 12) < 0.15 || Math.abs(floorY - 38) < 0.15 || Math.abs(floorY - 63) < 0.15 || Math.abs(floorY - 75) < 0.15);
-            const isNearRoadSouth = (Math.abs(floorY - 5) < 0.15 || Math.abs(floorY - 17) < 0.15 || Math.abs(floorY - 43) < 0.15 || Math.abs(floorY - 68) < 0.15 || Math.abs(floorY - 80) < 0.15);
-
-            if (isNearRoadSouth || isNearRoadNorth) {
-              ch = '-';
-              color = '#b0c2d4';
-            } else if (isNearRoadWest || isNearRoadEast) {
-              ch = '|';
-              color = '#b0c2d4';
+            if (straightDist > 32.0) {
+              //far distance: clean uniform sidewalk
+              ch = '.';
+              color = '#2d3b4b';
             } else {
-              const tileU = Math.floor(floorX * 1.5);
-              const tileV = Math.floor(floorY * 1.5);
-              const slab = (tileU + tileV) % 2;
-              ch = (slab === 0 ? ':' : '.');
-              color = (slab === 0 ? '#64748b' : '#475569');
+              const curbHalf = Math.max(0.15, straightDist * 0.02);
+              const isNearRoadWest = (Math.abs(floorX - 0) < curbHalf || Math.abs(floorX - 12) < curbHalf || Math.abs(floorX - 38) < curbHalf || Math.abs(floorX - 63) < curbHalf || Math.abs(floorX - 75) < curbHalf);
+              const isNearRoadEast = (Math.abs(floorX - 5) < curbHalf || Math.abs(floorX - 17) < curbHalf || Math.abs(floorX - 43) < curbHalf || Math.abs(floorX - 68) < curbHalf || Math.abs(floorX - 80) < curbHalf);
+              const isNearRoadNorth = (Math.abs(floorY - 0) < curbHalf || Math.abs(floorY - 12) < curbHalf || Math.abs(floorY - 38) < curbHalf || Math.abs(floorY - 63) < curbHalf || Math.abs(floorY - 75) < curbHalf);
+              const isNearRoadSouth = (Math.abs(floorY - 5) < curbHalf || Math.abs(floorY - 17) < curbHalf || Math.abs(floorY - 43) < curbHalf || Math.abs(floorY - 68) < curbHalf || Math.abs(floorY - 80) < curbHalf);
+
+              if (isNearRoadSouth || isNearRoadNorth || isNearRoadWest || isNearRoadEast) {
+                ch = '_';
+                color = '#94a3b8';
+              } else if (straightDist > 16.0) {
+                //mid distance: clean uniform sidewalk
+                ch = '.';
+                color = '#3b4b5b';
+              } else {
+                const tileU = Math.floor(floorX * 0.8);
+                const tileV = Math.floor(floorY * 0.8);
+                const slab = (tileU + tileV) % 2;
+                ch = (slab === 0 ? '.' : ',');
+                color = (slab === 0 ? '#475569' : '#334155');
+              }
             }
           }
 
@@ -3193,7 +3326,71 @@ function render3DWorld() {
           }
         }
 
-        drawOpaqueChar(col, row, ch, color, depthAlpha, cellBg);
+        if (corrDistPed > 6.0) {
+          drawChar(col, row, ch, color, Math.min(1.0, depthAlpha * 1.35));
+        } else {
+          drawOpaqueChar(col, row, ch, color, depthAlpha, cellBg);
+        }
+      }
+    }
+  }
+
+  //3d dense steam particles
+  if (config.particles && particles.length > 0) {
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+      const dx = p.x - player.x;
+      const dy = p.y - player.y;
+      const fwdDepth = dx * cosPlayerAngle + dy * sinPlayerAngle;
+      if (fwdDepth <= 0.20 || fwdDepth > MAX_DEPTH) continue;
+
+      const lateral = -dx * sinPlayerAngle + dy * cosPlayerAngle;
+      const centerCol = Math.floor((0.5 + (lateral / (fwdDepth * halfFovTan)) * 0.5) * RENDER_COLS);
+      if (centerCol < 0 || centerCol >= RENDER_COLS) continue;
+
+      const screenH = (RENDER_ROWS * PROJECTION_SCALE) / fwdDepth;
+      const centerRow = Math.floor(horizon - (p.z - player.z) * screenH);
+      if (centerRow < 0 || centerRow >= RENDER_ROWS) continue;
+
+      const age = 1.0 - (p.life / p.maxLife);
+      const depthAlpha = Math.max(0.40, 1 - (fwdDepth / MAX_DEPTH));
+      const fadeAlpha = (p.life / p.maxLife) * depthAlpha;
+
+      let ch = '%';
+      let color = '#f8fafc';
+
+      if (age < 0.20) {
+        ch = (p.seed % 2 < 1) ? '@' : '8';
+        color = '#ffffff';
+      } else if (age < 0.45) {
+        ch = (p.seed % 2 < 1) ? '0' : 'o';
+        color = '#f1f5f9';
+      } else if (age < 0.70) {
+        ch = (p.seed % 2 < 1) ? '%' : '*';
+        color = '#cbd5e1';
+      } else if (age < 0.88) {
+        ch = '~';
+        color = '#94a3b8';
+      } else {
+        ch = '.';
+        color = '#64748b';
+      }
+
+      //render primary puff
+      const pixIdx = centerCol * RENDER_ROWS + centerRow;
+      if (fwdDepth < pixelDepthBuffer[pixIdx]) {
+        drawChar(centerCol, centerRow, ch, color, Math.min(1.0, fadeAlpha * 1.25));
+      }
+
+      //expand puff laterally for fullness when nearby
+      if (fwdDepth < 16.0 && age > 0.15 && age < 0.80) {
+        const sideCol = (p.seed % 2 < 1) ? centerCol + 1 : centerCol - 1;
+        if (sideCol >= 0 && sideCol < RENDER_COLS) {
+          const sideIdx = sideCol * RENDER_ROWS + centerRow;
+          if (fwdDepth < pixelDepthBuffer[sideIdx]) {
+            drawChar(sideCol, centerRow, '~', color, fadeAlpha * 0.75);
+          }
+        }
       }
     }
   }
@@ -3204,7 +3401,7 @@ function render3DWorld() {
   ctx.fillStyle = '#000000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.font = `bold ${CHAR_HEIGHT - 1}px 'Courier New', monospace`;
+  ctx.font = fontStyle;
   ctx.textBaseline = 'top';
 
   //bg span batcher
@@ -3342,6 +3539,7 @@ function applyConfig() {
 
   syncTrafficUI();
   syncConfigUI();
+  saveConfig();
 }
 
 function syncTrafficUI() {
@@ -3359,6 +3557,14 @@ function syncConfigUI() {
     trafVal.textContent = config.traffic ? 'ON' : 'OFF';
     if (config.traffic) trafBtn.classList.remove('off');
     else trafBtn.classList.add('off');
+  }
+
+  const partBtn = document.getElementById('cfg-particles-btn');
+  const partVal = document.getElementById('cfg-particles-val');
+  if (partBtn && partVal) {
+    partVal.textContent = config.particles ? 'ON' : 'OFF';
+    if (config.particles) partBtn.classList.remove('off');
+    else partBtn.classList.add('off');
   }
 
   const hudBtn = document.getElementById('cfg-hud-btn');
@@ -3402,6 +3608,12 @@ function syncConfigUI() {
 function toggleConfigTraffic(e) {
   if (e) e.stopPropagation();
   config.traffic = !config.traffic;
+  applyConfig();
+}
+
+function toggleConfigParticles(e) {
+  if (e) e.stopPropagation();
+  config.particles = !config.particles;
   applyConfig();
 }
 
@@ -3455,18 +3667,19 @@ function restoreDefaultConfig(e) {
 }
 
 function pauseGame() {
-  lastPauseTime = performance.now();
-  lastScreenX = null;
-  lastScreenY = null;
+  if (isPaused) return;
+  isPaused = true;
   for (const k in keys) {
     keys[k] = false;
   }
+
   const overlay = document.getElementById('play-overlay');
   const startBtn = document.getElementById('start-game-btn');
   if (startBtn) startBtn.textContent = '[ CONTINUE ]';
   if (overlay) overlay.style.display = 'flex';
+
   const currentLock = document.pointerLockElement || document.mozPointerLockElement || document.webkitPointerLockElement;
-  if (document.exitPointerLock && currentLock === canvas) {
+  if (currentLock) {
     try {
       document.exitPointerLock();
     } catch (e) { }
@@ -3475,17 +3688,19 @@ function pauseGame() {
 
 function startGame() {
   hasStarted = true;
-  lastScreenX = null;
-  lastScreenY = null;
+  isPaused = false;
   applyConfig();
+
+  const overlay = document.getElementById('play-overlay');
+  if (overlay) overlay.style.display = 'none';
+
   try {
+    canvas.focus();
     const promise = canvas.requestPointerLock();
     if (promise && typeof promise.catch === 'function') {
       promise.catch(() => { });
     }
   } catch (e) { }
-  const overlay = document.getElementById('play-overlay');
-  if (overlay) overlay.style.display = 'none';
 }
 
 let lastTime = performance.now();
@@ -3499,6 +3714,7 @@ function gameLoop(now) {
   updateTrafficLights(dt);
   updateVehicles(dt);
   updatePedestrians(dt);
+  updateParticles(dt);
   updatePlayer();
   render3DWorld();
 
