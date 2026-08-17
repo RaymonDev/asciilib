@@ -439,6 +439,7 @@ function buildWorld() {
   vehicles.length = 0;
 
   function createCar(type, x, y, angle, speed, colorPrimary, colorHighlight, colorShadow, baseBg) {
+    const isBus = (type === 'bus');
     return {
       type: type,
       x: x,
@@ -446,11 +447,11 @@ function buildWorld() {
       angle: angle,
       cruiseSpeed: speed,
       speed: speed,
-      length: (type === 'coupe' ? 1.38 : (type === 'vip_sedan' ? 1.56 : 1.50)),
-      width: 0.94,
-      hoodZ: 0.46,
-      beltZ: 0.56,
-      roofZ: 1.02,
+      length: isBus ? 2.35 : (type === 'coupe' ? 1.38 : (type === 'vip_sedan' ? 1.56 : 1.50)),
+      width: isBus ? 1.08 : 0.94,
+      hoodZ: isBus ? 1.78 : 0.46,
+      beltZ: isBus ? 0.82 : 0.56,
+      roofZ: isBus ? 1.78 : 1.02,
       primaryColor: colorPrimary,
       highlightColor: colorHighlight,
       shadowColor: colorShadow,
@@ -465,6 +466,7 @@ function buildWorld() {
 
   //east-west boulevards
   vehicles.push(createCar('taxi', 8.0, 3.65, 0.0, 5.2, '#ffd700', '#ffe600', '#b45309', '#78350f'));
+  vehicles.push(createCar('bus', 32.0, 3.65, 0.0, 4.0, '#0284c7', '#38bdf8', '#0369a1', '#082f49'));
   vehicles.push(createCar('cyber_sedan', 72.0, 1.35, Math.PI, 4.8, '#00f0ff', '#7dd3fc', '#0284c7', '#0369a1'));
   vehicles.push(createCar('taxi', 22.0, 15.65, 0.0, 5.2, '#ffd700', '#ffe600', '#b45309', '#78350f'));
   vehicles.push(createCar('coupe', 68.0, 13.35, Math.PI, 5.4, '#ff0055', '#fb7185', '#9f1239', '#881337'));
@@ -480,6 +482,7 @@ function buildWorld() {
   vehicles.push(createCar('taxi', 3.65, 68.0, -Math.PI / 2, 5.1, '#ffd700', '#ffe600', '#b45309', '#78350f'));
   vehicles.push(createCar('cyber_sedan', 13.35, 20.0, Math.PI / 2, 4.9, '#00f0ff', '#7dd3fc', '#0284c7', '#0369a1'));
   vehicles.push(createCar('taxi', 15.65, 70.0, -Math.PI / 2, 5.1, '#ffd700', '#ffe600', '#b45309', '#78350f'));
+  vehicles.push(createCar('bus', 39.35, 52.0, Math.PI / 2, 4.0, '#0284c7', '#38bdf8', '#0369a1', '#082f49'));
   vehicles.push(createCar('vip_sedan', 39.35, 20.0, Math.PI / 2, 4.8, '#9333ea', '#c084fc', '#6b21a8', '#581c87'));
   vehicles.push(createCar('cyber_sedan', 41.65, 60.0, -Math.PI / 2, 5.0, '#00f0ff', '#7dd3fc', '#0284c7', '#0369a1'));
   vehicles.push(createCar('taxi', 64.35, 15.0, Math.PI / 2, 5.2, '#ffd700', '#ffe600', '#b45309', '#78350f'));
@@ -2185,7 +2188,43 @@ function render3DWorld() {
       const startXLocal = -dx * cosCar - dy * sinCar;
       const startYLocal = dx * sinCar - dy * cosCar;
 
-      const boxes = [
+      const boxes = (car.type === 'bus') ? [
+        //bus main body (tall rectangular monocoque)
+        {
+          minX: -halfL * 0.96, maxX: halfL * 0.96,
+          minY: -halfW * 0.94, maxY: halfW * 0.94,
+          minZ: 0.18, maxZ: car.roofZ,
+          type: 'bus_body'
+        },
+        //front-left wheel
+        {
+          minX: halfL * 0.50, maxX: halfL * 0.78,
+          minY: halfW * 0.78, maxY: halfW * 1.05,
+          minZ: 0.0, maxZ: 0.38,
+          type: 'wheel'
+        },
+        //front-right wheel
+        {
+          minX: halfL * 0.50, maxX: halfL * 0.78,
+          minY: -halfW * 1.05, maxY: -halfW * 0.78,
+          minZ: 0.0, maxZ: 0.38,
+          type: 'wheel'
+        },
+        //rear-left wheel
+        {
+          minX: -halfL * 0.78, maxX: -halfL * 0.50,
+          minY: halfW * 0.78, maxY: halfW * 1.05,
+          minZ: 0.0, maxZ: 0.38,
+          type: 'wheel'
+        },
+        //rear-right wheel
+        {
+          minX: -halfL * 0.78, maxX: -halfL * 0.50,
+          minY: -halfW * 1.05, maxY: -halfW * 0.78,
+          minZ: 0.0, maxZ: 0.38,
+          type: 'wheel'
+        }
+      ] : [
         //hood / front end
         {
           minX: halfL * 0.28, maxX: halfL,
@@ -2339,6 +2378,79 @@ function render3DWorld() {
               ch = (hitWorldZ < 0.10) ? '=' : '#';
               color = '#1e293b';
               cellBg = '#020617';
+            }
+          }
+          //bus body & features
+          else if (car.type === 'bus') {
+            if (hitFace === 'top') {
+              const isAC = (Math.abs(hitLocalX) < halfL * 0.45 && Math.abs(hitLocalY) < halfW * 0.55);
+              ch = isAC ? '#' : '=';
+              color = isAC ? '#94a3b8' : car.highlightColor;
+              cellBg = isAC ? '#1e293b' : car.baseBg;
+            } else if (isNoseBumper) {
+              //front destination sign (amber LED)
+              if (hitWorldZ >= 1.45 && hitWorldZ <= 1.72) {
+                ch = (Math.abs(hitLocalY) < halfW * 0.65) ? '=' : '#';
+                color = '#facc15';
+                cellBg = '#020617';
+              }
+              //panoramic windshield
+              else if (hitWorldZ >= 0.72 && hitWorldZ < 1.45) {
+                const isWiper = (hitWorldZ < 0.80 && Math.abs(hitLocalY) < halfW * 0.65);
+                ch = isWiper ? '/' : ((Math.abs(hitLocalY) < 0.04) ? '|' : '=');
+                color = isWiper ? '#0f172a' : '#38bdf8';
+                cellBg = isWiper ? '#1e293b' : '#0c4a6e';
+              }
+              //front dual headlights & transit badge
+              else if (hitWorldZ >= 0.32 && hitWorldZ < 0.62 && Math.abs(hitLocalY) > halfW * 0.45 && Math.abs(hitLocalY) < halfW * 0.88) {
+                ch = (hitWorldZ > 0.38 && hitWorldZ < 0.55) ? '*' : 'O';
+                color = '#ffffff';
+                cellBg = '#64748b';
+              } else {
+                ch = (Math.abs(hitLocalY) < halfW * 0.35) ? '|' : '=';
+                color = '#334155';
+                cellBg = '#020617';
+              }
+            } else if (isRearBumper) {
+              //rear route number
+              if (hitWorldZ >= 1.48) {
+                ch = '=';
+                color = '#facc15';
+                cellBg = '#020617';
+              }
+              //rear passenger window
+              else if (hitWorldZ >= 0.85 && hitWorldZ < 1.45) {
+                ch = '=';
+                color = '#38bdf8';
+                cellBg = '#0c4a6e';
+              }
+              //rear brake lights
+              else if (hitWorldZ >= 0.44 && hitWorldZ < 0.75 && Math.abs(hitLocalY) > halfW * 0.48) {
+                ch = '*';
+                color = '#ff0055';
+                cellBg = '#881337';
+              }
+              //rear diesel / electric engine ventilation grille
+              else {
+                ch = (Math.floor(hitLocalY * 12) % 2 === 0) ? '|' : '#';
+                color = '#475569';
+                cellBg = '#020617';
+              }
+            } else {
+              //side passenger windows
+              if (hitWorldZ >= 0.78 && hitWorldZ < 1.55) {
+                const isPillar = (Math.floor((hitLocalX + halfL) * 2.5) % 2 === 0);
+                ch = isPillar ? '|' : '=';
+                color = isPillar ? '#0f172a' : '#38bdf8';
+                cellBg = isPillar ? '#020617' : '#075985';
+              }
+              //lower transit livery panels
+              else {
+                const isStripe = (hitWorldZ >= 0.60 && hitWorldZ <= 0.76);
+                ch = isStripe ? '=' : '#';
+                color = isStripe ? car.highlightColor : car.primaryColor;
+                cellBg = car.baseBg;
+              }
             }
           }
           //taxi dome light
