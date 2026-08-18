@@ -52,6 +52,80 @@ const vehicles = [];
 const pedestrians = [];
 const particles = [];
 
+//2d spatial hash grid for fast frustum culling and collision queries
+const SPATIAL_CELL_SIZE = 8.0;
+const SPATIAL_GRID_DIM = Math.ceil(MAP_SIZE / SPATIAL_CELL_SIZE);
+
+class SpatialHashGrid {
+  constructor(cellDim = SPATIAL_GRID_DIM) {
+    this.dim = cellDim;
+    this.cells = new Array(cellDim * cellDim);
+    for (let i = 0; i < this.cells.length; i++) {
+      this.cells[i] = [];
+    }
+    this.queryToken = 0;
+  }
+
+  clear() {
+    for (let i = 0; i < this.cells.length; i++) {
+      this.cells[i].length = 0;
+    }
+  }
+
+  insert(entity, radius = 0.5) {
+    const x = entity.x;
+    const y = entity.y;
+    const minCx = Math.max(0, Math.floor((x - radius) / SPATIAL_CELL_SIZE));
+    const maxCx = Math.min(this.dim - 1, Math.floor((x + radius) / SPATIAL_CELL_SIZE));
+    const minCy = Math.max(0, Math.floor((y - radius) / SPATIAL_CELL_SIZE));
+    const maxCy = Math.min(this.dim - 1, Math.floor((y + radius) / SPATIAL_CELL_SIZE));
+
+    for (let cy = minCy; cy <= maxCy; cy++) {
+      const rowOffset = cy * this.dim;
+      for (let cx = minCx; cx <= maxCx; cx++) {
+        this.cells[rowOffset + cx].push(entity);
+      }
+    }
+  }
+
+  queryAABB(minX, minY, maxX, maxY, outList = []) {
+    outList.length = 0;
+    this.queryToken++;
+    const token = this.queryToken;
+
+    const minCx = Math.max(0, Math.floor(minX / SPATIAL_CELL_SIZE));
+    const maxCx = Math.min(this.dim - 1, Math.floor(maxX / SPATIAL_CELL_SIZE));
+    const minCy = Math.max(0, Math.floor(minY / SPATIAL_CELL_SIZE));
+    const maxCy = Math.min(this.dim - 1, Math.floor(maxY / SPATIAL_CELL_SIZE));
+
+    for (let cy = minCy; cy <= maxCy; cy++) {
+      const rowOffset = cy * this.dim;
+      for (let cx = minCx; cx <= maxCx; cx++) {
+        const bucket = this.cells[rowOffset + cx];
+        for (let i = 0; i < bucket.length; i++) {
+          const item = bucket[i];
+          if (item._sqToken !== token) {
+            item._sqToken = token;
+            outList.push(item);
+          }
+        }
+      }
+    }
+    return outList;
+  }
+}
+
+const staticSpatialGrid = new SpatialHashGrid();
+const dynamicSpatialGrid = new SpatialHashGrid();
+
+const _visibleStaticBuffer = [];
+const _visibleDynamicBuffer = [];
+const _playerNearbyBuffer = [];
+const _pedNearbyBuffer = [];
+
+let cullVisibleCount = 0;
+let cullTotalCount = 0;
+
 //crosswalk zebra stripe check
 function isMetropolisCrosswalk(floorX, floorY) {
   const EW = [{ y1: 0, y2: 4 }, { y1: 12, y2: 16 }, { y1: 38, y2: 42 }, { y1: 63, y2: 67 }, { y1: 75, y2: 79 }];
@@ -549,6 +623,24 @@ function buildWorld() {
   addPedestrian(pathBwySouth, 3, 2, false);
   addPedestrian(path5thAveWest, 4, 2, false);
   addPedestrian(path5thAveEast, 5, 1, false);
+
+  //populate static spatial grid
+  staticSpatialGrid.clear();
+  for (let i = 0; i < trees.length; i++) {
+    const t = trees[i];
+    t.entityType = 'tree';
+    staticSpatialGrid.insert(t, 1.2);
+  }
+  for (let i = 0; i < streetLights.length; i++) {
+    const sl = streetLights[i];
+    sl.entityType = 'lamp';
+    staticSpatialGrid.insert(sl, 1.2);
+  }
+  for (let i = 0; i < trafficLights.length; i++) {
+    const tl = trafficLights[i];
+    tl.entityType = 'trafficLight';
+    staticSpatialGrid.insert(tl, 1.2);
+  }
 }
 
 // -------------------------------------------------------------------------
@@ -948,11 +1040,12 @@ function updateVehicles(dt) {
 
   //vehicle vs vehicle obb collision
   for (let i = 0; i < vehicles.length; i++) {
+    const c1 = vehicles[i];
     for (let j = i + 1; j < vehicles.length; j++) {
-      const c1 = vehicles[i];
       const c2 = vehicles[j];
       const dx = c2.x - c1.x;
       const dy = c2.y - c1.y;
+      if (Math.abs(dx) > 4.0 || Math.abs(dy) > 4.0) continue;
 
       const cos1 = Math.cos(c1.angle);
       const sin1 = Math.sin(c1.angle);
@@ -1231,6 +1324,29 @@ function updateParticles(dt) {
   }
 }
 
+//rebuild dynamic spatial hash grid every frame
+function rebuildDynamicSpatialGrid() {
+  dynamicSpatialGrid.clear();
+  for (let i = 0; i < vehicles.length; i++) {
+    const v = vehicles[i];
+    v.entityType = 'vehicle';
+    v.entityId = i;
+    dynamicSpatialGrid.insert(v, (v.length || 1.5) * 0.5 + 0.3);
+  }
+  for (let i = 0; i < pedestrians.length; i++) {
+    const p = pedestrians[i];
+    p.entityType = 'pedestrian';
+    p.entityId = i;
+    dynamicSpatialGrid.insert(p, 0.4);
+  }
+  for (let i = 0; i < particles.length; i++) {
+    const part = particles[i];
+    part.entityType = 'particle';
+    part.entityId = i;
+    dynamicSpatialGrid.insert(part, 0.3);
+  }
+}
+
 // -------------------------------------------------------------------------
 // 8. player physics and first-person controller
 // -------------------------------------------------------------------------
@@ -1390,33 +1506,24 @@ function updatePlayer() {
     }
   }
 
-  //tree trunk collision
-  for (const tree of trees) {
-    const dist = Math.hypot(player.x - tree.x, player.y - tree.y);
-    if (dist < 0.28) {
-      const pushAngle = Math.atan2(player.y - tree.y, player.x - tree.x);
-      player.x = tree.x + Math.cos(pushAngle) * 0.28;
-      player.y = tree.y + Math.sin(pushAngle) * 0.28;
-    }
-  }
-
-  //lamp pole collision
-  for (const lamp of streetLights) {
-    const dist = Math.hypot(player.x - lamp.x, player.y - lamp.y);
-    if (dist < 0.22) {
-      const pushAngle = Math.atan2(player.y - lamp.y, player.x - lamp.x);
-      player.x = lamp.x + Math.cos(pushAngle) * 0.22;
-      player.y = lamp.y + Math.sin(pushAngle) * 0.22;
-    }
-  }
-
-  //traffic light pole collision
-  for (const tl of trafficLights) {
-    const dist = Math.hypot(player.x - tl.x, player.y - tl.y);
-    if (dist < 0.22) {
-      const pushAngle = Math.atan2(player.y - tl.y, player.x - tl.x);
-      player.x = tl.x + Math.cos(pushAngle) * 0.22;
-      player.y = tl.y + Math.sin(pushAngle) * 0.22;
+  //local spatial grid collision query for player
+  const nearbyStatic = staticSpatialGrid.queryAABB(player.x - 1.5, player.y - 1.5, player.x + 1.5, player.y + 1.5, _playerNearbyBuffer);
+  for (let i = 0; i < nearbyStatic.length; i++) {
+    const obj = nearbyStatic[i];
+    if (obj.entityType === 'tree') {
+      const dist = Math.hypot(player.x - obj.x, player.y - obj.y);
+      if (dist < 0.28) {
+        const pushAngle = Math.atan2(player.y - obj.y, player.x - obj.x);
+        player.x = obj.x + Math.cos(pushAngle) * 0.28;
+        player.y = obj.y + Math.sin(pushAngle) * 0.28;
+      }
+    } else if (obj.entityType === 'lamp' || obj.entityType === 'trafficLight') {
+      const dist = Math.hypot(player.x - obj.x, player.y - obj.y);
+      if (dist < 0.22) {
+        const pushAngle = Math.atan2(player.y - obj.y, player.x - obj.x);
+        player.x = obj.x + Math.cos(pushAngle) * 0.22;
+        player.y = obj.y + Math.sin(pushAngle) * 0.22;
+      }
     }
   }
 
@@ -2150,12 +2257,32 @@ function render3DWorld() {
     }
   }
 
+  //frustum culling query against spatial grids
+  const p1x = player.x;
+  const p1y = player.y;
+  const p2x = player.x + (cosPlayerAngle - planeX) * MAX_DEPTH;
+  const p2y = player.y + (sinPlayerAngle - planeY) * MAX_DEPTH;
+  const p3x = player.x + (cosPlayerAngle + planeX) * MAX_DEPTH;
+  const p3y = player.y + (sinPlayerAngle + planeY) * MAX_DEPTH;
+
+  const frustumMinX = Math.min(p1x, Math.min(p2x, p3x)) - 2.5;
+  const frustumMaxX = Math.max(p1x, Math.max(p2x, p3x)) + 2.5;
+  const frustumMinY = Math.min(p1y, Math.min(p2y, p3y)) - 2.5;
+  const frustumMaxY = Math.max(p1y, Math.max(p2y, p3y)) + 2.5;
+
+  const visibleStatic = staticSpatialGrid.queryAABB(frustumMinX, frustumMinY, frustumMaxX, frustumMaxY, _visibleStaticBuffer);
+  const visibleDynamic = dynamicSpatialGrid.queryAABB(frustumMinX, frustumMinY, frustumMaxX, frustumMaxY, _visibleDynamicBuffer);
+
+  cullVisibleCount = visibleStatic.length + visibleDynamic.length;
+  cullTotalCount = trees.length + streetLights.length + trafficLights.length + vehicles.length + pedestrians.length + (config.particles ? particles.length : 0);
+
   // -------------------------------------------------------------------------
   // 10. 3d vehicles with yaw rotation
   // -------------------------------------------------------------------------
   if (isTrafficActive) {
-    for (let c = 0; c < vehicles.length; c++) {
-      const car = vehicles[c];
+    for (let c = 0; c < visibleDynamic.length; c++) {
+      const car = visibleDynamic[c];
+      if (car.entityType !== 'vehicle') continue;
       const dx = car.x - player.x;
       const dy = car.y - player.y;
 
@@ -2549,8 +2676,9 @@ function render3DWorld() {
   // -------------------------------------------------------------------------
   // 11. 3d street lamps
   // -------------------------------------------------------------------------
-  for (let l = 0; l < streetLights.length; l++) {
-    const lamp = streetLights[l];
+  for (let l = 0; l < visibleStatic.length; l++) {
+    const lamp = visibleStatic[l];
+    if (lamp.entityType !== 'lamp') continue;
     const dx = lamp.x - player.x;
     const dy = lamp.y - player.y;
 
@@ -2717,8 +2845,9 @@ function render3DWorld() {
   // -------------------------------------------------------------------------
   // 12. 3d traffic signals
   // -------------------------------------------------------------------------
-  for (let tlIdx = 0; tlIdx < trafficLights.length; tlIdx++) {
-    const tl = trafficLights[tlIdx];
+  for (let tlIdx = 0; tlIdx < visibleStatic.length; tlIdx++) {
+    const tl = visibleStatic[tlIdx];
+    if (tl.entityType !== 'trafficLight') continue;
 
     //vertical mast pole
     const dxPole = tl.x - player.x;
@@ -3024,8 +3153,9 @@ function render3DWorld() {
   const PURE_ASCII_BARK = ['#', 'H', '|', 'I', '%', '&', '#', '8'];
   const PURE_ASCII_LEAVES = ['@', '8', '0', '&', '%', '*', 'o', '#', 's', 'O'];
 
-  for (let t = 0; t < trees.length; t++) {
-    const tree = trees[t];
+  for (let t = 0; t < visibleStatic.length; t++) {
+    const tree = visibleStatic[t];
+    if (tree.entityType !== 'tree') continue;
     const dx = tree.x - player.x;
     const dy = tree.y - player.y;
 
@@ -3162,8 +3292,9 @@ function render3DWorld() {
   // -------------------------------------------------------------------------
   // 13. 3d articulated pedestrians (gait cycle)
   // -------------------------------------------------------------------------
-  for (let p = 0; p < pedestrians.length; p++) {
-    const ped = pedestrians[p];
+  for (let p = 0; p < visibleDynamic.length; p++) {
+    const ped = visibleDynamic[p];
+    if (ped.entityType !== 'pedestrian') continue;
     const dx = ped.x - player.x;
     const dy = ped.y - player.y;
 
@@ -3448,9 +3579,10 @@ function render3DWorld() {
   }
 
   //3d dense steam particles
-  if (config.particles && particles.length > 0) {
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i];
+  if (config.particles && visibleDynamic.length > 0) {
+    for (let i = 0; i < visibleDynamic.length; i++) {
+      const p = visibleDynamic[i];
+      if (p.entityType !== 'particle') continue;
       const dx = p.x - player.x;
       const dy = p.y - player.y;
       const fwdDepth = dx * cosPlayerAngle + dy * sinPlayerAngle;
@@ -3827,6 +3959,7 @@ function gameLoop(now) {
   updateVehicles(dt);
   updatePedestrians(dt);
   updateParticles(dt);
+  rebuildDynamicSpatialGrid();
   updatePlayer();
   render3DWorld();
 
@@ -3845,6 +3978,12 @@ function gameLoop(now) {
     const padDeg = String(headingDeg).padStart(3, '0');
     const compassEl = document.getElementById('hud-compass');
     if (compassEl) compassEl.textContent = `${padDeg}° [${CARDINALS[cardIdx]}]`;
+
+    const cullEl = document.getElementById('hud-cull');
+    if (cullEl) {
+      const pct = Math.round((1 - (cullVisibleCount / Math.max(1, cullTotalCount))) * 100);
+      cullEl.textContent = `${cullVisibleCount}/${cullTotalCount} (-${pct}%)`;
+    }
 
     frameCount = 0;
     fpsTimer = 0;
