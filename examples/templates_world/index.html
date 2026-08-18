@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>asciilib - Templates & Prefabs Showcase World</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="canvas3d"></canvas>
+    <div id="crosshair"></div>
+
+    <!-- in-game hud -->
+    <div id="hud" style="display: none;">
+      <div class="hud-top">
+        <div class="hud-stats">
+          <div>FPS: <span id="hud-fps">60</span></div>
+          <div>POS: <span id="hud-pos">X:20.0 Y:20.0</span></div>
+          <div>DIR: <span id="hud-compass">090° [E]</span></div>
+          <div>ENTITIES: <span id="hud-entities">0</span></div>
+        </div>
+        <div class="hud-toggles">
+          <div>TRAFFIC: <span id="hud-traffic-status">ACTIVE</span> [P]</div>
+          <div>SPARKS: <span id="hud-sparks-status">ACTIVE</span> [O]</div>
+          <div>DRONE: <span id="hud-drone-mode">PATROL</span> [C]</div>
+        </div>
+      </div>
+      <div class="hud-bottom">
+        <div>[WASD] Move | [Mouse] Look 180° | [C] Drone Stalk Mode | [Shift] Sprint | [Esc] Menu</div>
+      </div>
+    </div>
+
+    <!-- start / pause menu -->
+    <div id="play-overlay">
+      <div class="ascii-menu">
+        <div class="ascii-menu-header">+---------------------------------------------------+</div>
+        <div class="ascii-menu-title">| ASCIILIB : TEMPLATES & PREFABS WORLD |</div>
+        <div class="ascii-menu-header">+---------------------------------------------------+</div>
+        <div class="ascii-menu-subtitle">A showcase world built 100% with asciilib templates & prefabs</div>
+
+        <button type="button" id="start-game-btn" class="ascii-start-btn" onclick="startGame()">
+          [ ENTER WORLD ]
+        </button>
+
+        <div class="ascii-features-list">
+          <div>* CompoundEntity (Hierarchical 3D Multi-part Voxel Models)</div>
+          <div>* MaterialPresets (Glass, Chrome, Brick, Neon, Foliage)</div>
+          <div>* ASCIIBrush Procedural Texturing Shaders</div>
+          <div>* Vehicle Prefabs (Taxis, Buses, Coupes, Sedans)</div>
+          <div>* Pedestrian Prefabs (Articulated Humanoids)</div>
+          <div>* Street Furniture (Trees, Lamps, Traffic Signals)</div>
+          <div>* Particle Presets (Steam, Sparks, Rain)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

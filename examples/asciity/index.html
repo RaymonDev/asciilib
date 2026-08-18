@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- made by RaymonDev -->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASCIITY</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+  <div id="game-container">
+    <canvas id="canvas3d"></canvas>
+    <div id="crosshair"></div>
+
+    <!-- minimal in-game hud -->
+    <div id="hud" style="display: none;">
+      <div class="hud-top">
+        <div class="hud-stats">
+          <div>FPS: <span id="hud-fps">60</span></div>
+          <div>POS: <span id="hud-pos">X:37.0 Y:43.5</span></div>
+          <div>DIR: <span id="hud-compass">090° [E]</span></div>
+          <div>CULL: <span id="hud-cull">--</span></div>
+        </div>
+        <div class="hud-toggles">
+          <div>TRAFFIC: <span id="hud-traffic-status">ACTIVE</span> [P]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- minimalist start/pause menu -->
+    <div id="play-overlay">
+      <div class="ascii-menu">
+        <div class="ascii-menu-header">+---------------------------------------------+</div>
+        <div class="ascii-menu-title">| ASCIITY |</div>
+        <div class="ascii-menu-header">+---------------------------------------------+</div>
+
+        <button type="button" id="start-game-btn" class="ascii-start-btn" onclick="startGame()">
+          [ ENTER ]
+        </button>
+
+        <!-- collapsible settings -->
+        <button type="button" id="config-dropdown-btn" class="ascii-toggle-header-btn" onclick="toggleConfigDropdown()">
+          +-- [ <span id="config-dropdown-symbol">+</span> CONFIGURATION ] ------------------------+
+        </button>
+
+        <div id="ascii-config-panel" class="ascii-config-panel hidden">
+          <div class="ascii-config-grid">
+            <!-- traffic toggle -->
+            <div class="ascii-config-row">
+              <span>TRAFFIC SIMULATION:</span>
+              <button type="button" id="cfg-traffic-btn" class="ascii-btn" onclick="toggleConfigTraffic()">
+                [ <span id="cfg-traffic-val">ON</span> ]
+              </button>
+            </div>
+
+            <!-- particle effects toggle -->
+            <div class="ascii-config-row">
+              <span>STEAM PARTICLES:</span>
+              <button type="button" id="cfg-particles-btn" class="ascii-btn" onclick="toggleConfigParticles()">
+                [ <span id="cfg-particles-val">ON</span> ]
+              </button>
+            </div>
+
+            <!-- hud toggle -->
+            <div class="ascii-config-row">
+              <span>HUD DISPLAY:</span>
+              <button type="button" id="cfg-hud-btn" class="ascii-btn" onclick="toggleConfigHud()">
+                [ <span id="cfg-hud-val">ON</span> ]
+              </button>
+            </div>
+
+            <!-- crosshair toggle -->
+            <div class="ascii-config-row">
+              <span>CROSSHAIR:</span>
+              <button type="button" id="cfg-crosshair-btn" class="ascii-btn" onclick="toggleConfigCrosshair()">
+                [ <span id="cfg-crosshair-val">ON</span> ]
+              </button>
+            </div>
+
+            <!-- player height -->
+            <div class="ascii-slider-group">
+              <div class="ascii-slider-header">
+                <span>PLAYER HEIGHT:</span>
+                <span id="cfg-height-val" class="ascii-val">1.00m</span>
+              </div>
+              <input type="range" id="cfg-height-slider" min="0.40" max="2.00" step="0.05" value="1.00"
+                oninput="updateConfigHeight(this.value)">
+            </div>
+
+            <!-- fov / zoom -->
+            <div class="ascii-slider-group">
+              <div class="ascii-slider-header">
+                <span>CAMERA FOV (ZOOM):</span>
+                <span id="cfg-fov-val" class="ascii-val">70°</span>
+              </div>
+              <input type="range" id="cfg-fov-slider" min="50" max="100" step="1" value="70"
+                oninput="updateConfigFov(this.value)">
+            </div>
+
+            <!-- mouse sens -->
+            <div class="ascii-slider-group">
+              <div class="ascii-slider-header">
+                <span>MOUSE SENSITIVITY:</span>
+                <span id="cfg-sens-val" class="ascii-val">1.0x</span>
+              </div>
+              <input type="range" id="cfg-sens-slider" min="0.2" max="3.0" step="0.1" value="1.0"
+                oninput="updateConfigSens(this.value)">
+            </div>
+          </div>
+
+          <button type="button" id="restore-defaults-btn" class="ascii-restore-btn" onclick="restoreDefaultConfig()">
+            [ RESTORE DEFAULTS ]
+          </button>
+        </div>
+
+        <div class="ascii-menu-footer">
+          <div>WASD: Move | Mouse: Look | Space: Jump</div>
+          <div>Shift: Sprint | C: Crouch | P: Traffic | ESC: Menu</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>
