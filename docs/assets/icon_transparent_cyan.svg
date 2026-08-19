@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <style>
+    .brand-title {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: 0.28em;
+      fill: #38bdf8;
+      text-anchor: middle;
+    }
+  </style>
+  <g id="block-a">
+    <rect x="298" y="142" width="204" height="100" fill="#38bdf8" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" rx="1.5"/>
+    <line x1="323.5" y1="144" x2="323.5" y2="240" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="349" y1="144" x2="349" y2="240" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="374.5" y1="144" x2="374.5" y2="240" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="400" y1="144" x2="400" y2="240" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="425.5" y1="144" x2="425.5" y2="240" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="451" y1="144" x2="451" y2="240" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="476.5" y1="144" x2="476.5" y2="240" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <rect x="194" y="246" width="100" height="100" fill="#38bdf8" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" rx="1.5"/>
+    <line x1="219" y1="248" x2="219" y2="344" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="244" y1="248" x2="244" y2="344" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="269" y1="248" x2="269" y2="344" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <rect x="506" y="246" width="100" height="100" fill="#38bdf8" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" rx="1.5"/>
+    <line x1="531" y1="248" x2="531" y2="344" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="556" y1="248" x2="556" y2="344" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="581" y1="248" x2="581" y2="344" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <rect x="194" y="350" width="412" height="100" fill="#38bdf8" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" rx="1.5"/>
+    <line x1="221.46666666666667" y1="352" x2="221.46666666666667" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="248.93333333333334" y1="352" x2="248.93333333333334" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="276.4" y1="352" x2="276.4" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="303.8666666666667" y1="352" x2="303.8666666666667" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="331.3333333333333" y1="352" x2="331.3333333333333" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="358.79999999999995" y1="352" x2="358.79999999999995" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="386.26666666666665" y1="352" x2="386.26666666666665" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="413.73333333333335" y1="352" x2="413.73333333333335" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="441.2" y1="352" x2="441.2" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="468.66666666666663" y1="352" x2="468.66666666666663" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="496.1333333333333" y1="352" x2="496.1333333333333" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="523.5999999999999" y1="352" x2="523.5999999999999" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="551.0666666666666" y1="352" x2="551.0666666666666" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="578.5333333333333" y1="352" x2="578.5333333333333" y2="448" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <rect x="194" y="454" width="100" height="100" fill="#38bdf8" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" rx="1.5"/>
+    <line x1="219" y1="456" x2="219" y2="552" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="244" y1="456" x2="244" y2="552" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="269" y1="456" x2="269" y2="552" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <rect x="506" y="454" width="100" height="100" fill="#38bdf8" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" rx="1.5"/>
+    <line x1="531" y1="456" x2="531" y2="552" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="556" y1="456" x2="556" y2="552" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="581" y1="456" x2="581" y2="552" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <rect x="194" y="558" width="100" height="100" fill="#38bdf8" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" rx="1.5"/>
+    <line x1="219" y1="560" x2="219" y2="656" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="244" y1="560" x2="244" y2="656" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="269" y1="560" x2="269" y2="656" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <rect x="506" y="558" width="100" height="100" fill="#38bdf8" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1.5" rx="1.5"/>
+    <line x1="531" y1="560" x2="531" y2="656" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="556" y1="560" x2="556" y2="656" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+    <line x1="581" y1="560" x2="581" y2="656" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+  </g>
+</svg>

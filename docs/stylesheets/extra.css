@@ -1,0 +1,354 @@
+/*custom aesthetic styling for asciilib readthedocs*/
+
+:root {
+  --md-primary-fg-color: #0b0e14;
+  --md-accent-fg-color: #00f0ff;
+  --md-grid-max-width: 78rem;
+}
+
+/*shift table of contents sidebar ~3cm to the right*/
+@media screen and (min-width: 76.25em) {
+  .md-sidebar--secondary {
+    transform: translateX(3rem) !important;
+  }
+}
+
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #090d13;
+  --md-default-fg-color: #e2e8f0;
+  --md-default-fg-color--light: #94a3b8;
+  --md-default-fg-color--lighter: #64748b;
+  --md-code-bg-color: #0f172a;
+  --md-code-fg-color: #f8fafc;
+  --md-typeset-a-color: #38bdf8;
+  --md-accent-fg-color: #38bdf8;
+}
+
+/*custom top navbar styling*/
+.md-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.md-header__inner {
+  padding-left: 0.45rem !important;
+  padding-right: 1.25rem !important;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/*logo aligned with left sidebar menu*/
+.md-header__button.md-logo {
+  margin-left: 0 !important;
+  margin-right: 0.25rem !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 1.5rem !important;
+  width: auto !important;
+}
+
+.md-header__title {
+  display: flex !important;
+  align-items: center !important;
+  margin-left: 0.2rem !important;
+  margin-right: 1.5rem !important;
+  flex: 0 0 auto !important;
+}
+
+.md-header__title .md-header__ellipsis {
+  display: flex !important;
+  align-items: center !important;
+  overflow: visible !important;
+}
+
+.md-header__topic:first-child {
+  display: inline-block !important;
+  font-family: 'Courier New', 'Consolas', 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  font-size: 0.82rem !important;
+  color: #cbd5e1 !important;
+  opacity: 0.95 !important;
+  transform: none !important;
+}
+
+.md-header__topic:last-child {
+  display: none !important;
+}
+
+/*perfectly centered search bar*/
+@media screen and (min-width: 60em) {
+  .md-search {
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 440px !important;
+    max-width: 45vw !important;
+    margin: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+}
+
+.md-search__inner {
+  width: 100% !important;
+}
+
+.md-search__form {
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.2s ease;
+}
+
+.md-search__form:hover,
+.md-search__form:focus-within {
+  border-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+/*compact, elegant right-aligned github repository button aligned with TOC*/
+.md-header__source {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+@media screen and (min-width: 76.25em) {
+  .md-header__source {
+    transform: translateX(3rem) !important;
+  }
+}
+
+.md-source {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px !important;
+  padding: 0.2rem 0.55rem !important;
+  height: 28px !important;
+  max-height: 28px !important;
+  box-sizing: border-box !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.md-source:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.md-source__icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+.md-source__icon svg {
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+  display: block !important;
+  fill: #e2e8f0 !important;
+  margin: 0 !important;
+}
+
+.md-source__repository {
+  display: inline-block !important;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace !important;
+  font-size: 0.72rem !important;
+  font-weight: 500 !important;
+  color: #94a3b8 !important;
+  line-height: 1 !important;
+  max-width: none !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/*hide any auto-generated overview h1 title on the index page*/
+.md-typeset h1#overview,
+.md-typeset > #overview,
+.md-typeset > h1:first-child:has(+ .asciilib-hero),
+.md-typeset > h1:first-child:has(+ * .asciilib-hero) {
+  display: none !important;
+}
+
+/*smooth comfortable reading typography*/
+.md-typeset {
+  font-size: 0.84rem;
+  line-height: 1.7;
+}
+
+/*mermaid diagrams centering and responsiveness*/
+.mermaid,
+.md-typeset .mermaid {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 1.8rem auto !important;
+  text-align: center !important;
+  overflow-x: auto !important;
+}
+
+.mermaid svg,
+.md-typeset .mermaid svg {
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 0 auto !important;
+}
+
+.md-typeset h1 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.md-typeset h2 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.3rem;
+  margin-top: 2rem;
+}
+
+.md-typeset h3 {
+  font-weight: 600;
+  margin-top: 1.5rem;
+}
+
+/*hero banner container*/
+.asciilib-hero {
+  text-align: center;
+  padding: 1.5rem 0 2rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.asciilib-banner-pre {
+  display: inline-block;
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  line-height: 1.15;
+  color: #ffffff;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 auto 1rem auto !important;
+  user-select: none;
+}
+
+.asciilib-subtitle {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #94a3b8;
+  max-width: 680px;
+  margin: 0 auto 1.2rem auto;
+  line-height: 1.5;
+}
+
+.asciilib-badges {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+
+.asciilib-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.asciilib-btn-primary {
+  display: inline-block;
+  background: #ffffff;
+  color: #000000 !important;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+}
+
+.asciilib-btn-primary:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.asciilib-btn-secondary {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+}
+
+.asciilib-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/*card grids*/
+.grid.cards > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+.grid.cards > ul > li {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease;
+}
+
+.grid.cards > ul > li:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/*code block polish*/
+.md-typeset pre > code {
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/*admonitions / callouts*/
+.md-typeset .admonition {
+  border-radius: 6px;
+  font-size: 0.82rem;
+}
+
+/*hide 'Made with Material for MkDocs' footer notice*/
+.md-copyright,
+.md-footer-meta__inner .md-copyright {
+  display: none !important;
+}

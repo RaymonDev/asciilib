@@ -62,6 +62,8 @@
     "test:light_example": "node test/light_test_example_test.js",
     "test:showcase": "node test/showcase_integrity_test.js",
     "test:templates": "node test/templates_world_test.js",
+    "docs:serve": "mkdocs serve",
+    "docs:build": "mkdocs build --strict",
     "start": "npx serve .",
     "dev": "npx serve ."
   },

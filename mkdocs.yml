@@ -1,0 +1,73 @@
+site_name: asciilib
+site_description: Zero-dependency, pure JavaScript 3D ASCII graphics, physics, and procedural audio engine.
+site_url: https://asciilib.readthedocs.io/
+repo_url: https://github.com/RaymonDev/asciilib
+repo_name: RaymonDev/asciilib
+
+theme:
+  name: material
+  logo: assets/icon_transparent.svg
+  favicon: assets/icon_transparent.svg
+  icon:
+    repo: fontawesome/brands/github
+  font:
+    text: Inter
+    code: JetBrains Mono
+  palette:
+    scheme: slate
+    primary: black
+    accent: cyan
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - meta
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Overview: index.md
+  - Quickstart: quickstart.md
+  - Core Engine:
+      - 3D Pipeline & Blitter: rendering.md
+      - Cameras & Controls: cameras.md
+      - 3D Primitives: primitives.md
+      - Materials & Shaders: materials.md
+  - Systems:
+      - Dynamic 3D Lighting: lighting.md
+      - Procedural Web Audio: audio.md
+      - 2D ASCII Map Serialization: maps.md
+      - Entity Prefabs: prefabs.md
+  - API Reference: api_reference.md
