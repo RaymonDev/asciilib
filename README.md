@@ -15,21 +15,21 @@
 **A zero-dependency, pure vanilla JavaScript 3D software rendering engine and spatial game framework.**
 
 [![Pure Vanilla JS](https://img.shields.io/badge/language-Vanilla%20ES6+-F7DF1E.svg?style=flat-square&logo=javascript&logoColor=black)](#)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](#)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
 
-[Installation](#installation) • [Quickstart](#quickstart) • [Features](#features) • [Running the Examples](#running-the-examples) • [Controls](#controls) • [License](#license)
+[Live Demo](https://raymondev.github.io/asciilib/) • [Installation](#installation) • [Quickstart](#quickstart) • [Features](#features) • [Running the Examples](#running-the-examples) • [Controls](#controls) • [License](#license)
 
----
+
 
 </div>
 
 ## Overview
 
-**`asciilib`** is a modular, high-performance software 3D rendering engine built with pure mathematics and standard ASCII characters (ASCII 32–126). 
+**`asciilib`** is a modular, high-performance software 3D rendering engine built with pure mathematics and standard ASCII characters (ASCII 32–126).
 
 It turns a standard HTML5 Canvas 2D context into a full 3D software rasterization pipeline capable of rendering cities, 3D geometry, vehicles, characters, and particle effects without external 3D asset files or textures.
 
----
+
 
 ## Installation
 
@@ -60,7 +60,7 @@ npm install asciilib
 import { Engine, Scene, Camera, FirstPersonController, BoxEntity } from 'asciilib';
 ```
 
----
+
 
 ## Quickstart
 
@@ -106,7 +106,7 @@ engine.start(
 );
 ```
 
----
+
 
 ## Features
 
@@ -121,7 +121,7 @@ engine.start(
 - **First-Person Controls**: Built-in locomotion (WASD, sprint, crouch, jump) and 360-degree mouse look with Pointer Lock.
 - **Batched Canvas Blitter**: Optimized horizontal run-length batching that reduces canvas draw calls by over 90%.
 
----
+
 
 ## Running the Examples
 
@@ -131,7 +131,12 @@ The repository includes showcase projects demonstrating different aspects of `as
 
 Because the project uses standard JavaScript ES Modules, browsers require a local HTTP server to run the files.
 
-### Option 1: Using Node.js / npx (Recommended)
+### Option 1: Live Web Demo (No Setup)
+
+Open directly in your web browser:  
+**[https://raymondev.github.io/asciilib/](https://raymondev.github.io/asciilib/)**
+
+### Option 2: Using Node.js / npx (Local Development)
 
 ```bash
 # Using 'serve'
@@ -155,7 +160,7 @@ python -m SimpleHTTPServer 8080
 
 Right-click any `index.html` in `examples/` and select **"Open with Live Server"**.
 
----
+
 
 ### Example URLs
 
@@ -168,7 +173,7 @@ Once your local server is running, navigate to:
 - **Legacy Standalone Reference Demo**:  
   `http://localhost:8080/`
 
----
+
 
 ## Controls
 
@@ -182,7 +187,7 @@ Once your local server is running, navigate to:
 | **`P`** | Toggle Autonomous Traffic |
 | **`ESC`** | Pause Game / Open Configuration Menu |
 
----
+
 
 ## Testing
 
@@ -198,7 +203,7 @@ node test/showcase_integrity_test.js
 node test/templates_world_test.js
 ```
 
----
+
 
 ## License
 
