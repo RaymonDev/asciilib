@@ -1,0 +1,125 @@
+{
+  "name": "asciilib",
+  "version": "1.0.0",
+  "description": "Zero-dependency pure vanilla JavaScript 3D software rendering engine and spatial ASCII game framework.",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
+    "./presets": {
+      "types": "./src/presets/index.d.ts",
+      "default": "./src/presets/index.js"
+    },
+    "./math": {
+      "types": "./src/math/index.d.ts",
+      "default": "./src/math/index.js"
+    },
+    "./camera": {
+      "types": "./src/camera/index.d.ts",
+      "default": "./src/camera/index.js"
+    },
+    "./core": {
+      "types": "./src/core/index.d.ts",
+      "default": "./src/core/index.js"
+    },
+    "./primitives": {
+      "types": "./src/primitives/index.d.ts",
+      "default": "./src/primitives/index.js"
+    },
+    "./scene": {
+      "types": "./src/scene/index.d.ts",
+      "default": "./src/scene/index.js"
+    },
+    "./materials": {
+      "types": "./src/materials/index.d.ts",
+      "default": "./src/materials/index.js"
+    },
+    "./map": {
+      "types": "./src/map/index.d.ts",
+      "default": "./src/map/index.js"
+    }
+  },
+  "scripts": {
+    "test": "node test/math_spatial_test.js && node test/engine_camera_test.js && node test/scene_primitives_test.js && node test/compound_entity_test.js && node test/materials_presets_test.js && node test/showcase_integrity_test.js && node test/templates_world_test.js",
+    "test:math": "node test/math_spatial_test.js",
+    "test:engine": "node test/engine_camera_test.js",
+    "test:scene": "node test/scene_primitives_test.js",
+    "test:compound": "node test/compound_entity_test.js",
+    "test:materials": "node test/materials_presets_test.js",
+    "test:showcase": "node test/showcase_integrity_test.js",
+    "test:templates": "node test/templates_world_test.js",
+    "start": "npx serve .",
+    "dev": "npx serve ."
+  },
+  "keywords": [
+    "ascii",
+    "ascii-art",
+    "ascii-3d",
+    "ascii-graphics",
+    "ascii-game",
+    "3d",
+    "3d-engine",
+    "3d-graphics",
+    "rendering-engine",
+    "software-renderer",
+    "software-rendering",
+    "software-rasterizer",
+    "rasterizer",
+    "raycaster",
+    "raycasting",
+    "raycasting-engine",
+    "ray-tracing",
+    "raymarching",
+    "voxel",
+    "voxels",
+    "voxel-engine",
+    "game-engine",
+    "gamedev",
+    "game-framework",
+    "javascript-game-engine",
+    "html5-games",
+    "browser-games",
+    "canvas-2d",
+    "html5-canvas",
+    "vanilla-js",
+    "zero-dependency",
+    "no-dependencies",
+    "retro",
+    "retro-gaming",
+    "retro-graphics",
+    "text-mode",
+    "text-graphics",
+    "tui",
+    "terminal-graphics",
+    "procedural",
+    "procedural-generation",
+    "spatial-hash",
+    "z-buffer",
+    "first-person",
+    "fps-engine",
+    "webgl-alternative",
+    "lightweight-3d",
+    "es-modules",
+    "esm"
+  ],
+  "author": "RaymonDev",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RaymonDev/asciilib.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RaymonDev/asciilib/issues"
+  },
+  "homepage": "https://github.com/RaymonDev/asciilib#readme",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ]
+}
