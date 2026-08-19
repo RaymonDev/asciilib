@@ -47,6 +47,7 @@ Experience `asciilib` running live directly in your browser:
 | **Templates World** | Comprehensive showcase with all 3D primitives, procedural materials, and companion drone AI | [Launch Demo](https://raymondev.github.io/asciilib/examples/templates_world/) |
 | **Dynamic 3D Lighting** | Real-time Euclidean point lights, drone searchlights, flashlight beams, and Day/Night cycles | [Launch Demo](https://raymondev.github.io/asciilib/examples/light_test/) |
 | **2D ASCII Map Test** | Multi-block town rendered directly from a 2D ASCII text blueprint | [Launch Demo](https://raymondev.github.io/asciilib/examples/map_test/) |
+| **Original Proof-of-Concept** | Standalone monolithic prototype built in pure raw JS without the library | [Launch Demo](https://raymondev.github.io/asciilib/) |
 
 ---
 
