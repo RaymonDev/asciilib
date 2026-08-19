@@ -559,3 +559,5 @@ export function createStreetFurniture(scene) {
 
   return lights;
 }
+
+export { StreetLightEntity as StreetLampEntity };

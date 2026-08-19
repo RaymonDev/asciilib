@@ -35,7 +35,7 @@ It turns a standard HTML5 Canvas 2D context into a full 3D software rasterizatio
 
 You can use `asciilib` directly in your project using standard ES Modules:
 
-### Option 1: Direct Local Import (Recommended)
+### 1: Direct Local Import (Recommended)
 
 Copy the `src/` directory into your project and import the modules:
 
@@ -43,14 +43,14 @@ Copy the `src/` directory into your project and import the modules:
 import { Engine, Scene, Camera, FirstPersonController, BoxEntity } from './src/index.js';
 ```
 
-### Option 2: Clone the Repository
+### 2: Clone the Repository
 
 ```bash
 git clone https://github.com/RaymonDev/asciilib.git
 cd asciilib
 ```
 
-### Option 3: Package Manager (npm) [PENDING]
+### 3: Package Manager (npm)
 
 ```bash
 npm install asciilib
@@ -127,6 +127,7 @@ engine.start(
 
 The repository includes showcase projects demonstrating different aspects of `asciilib`:
 - **Templates World**: A showcase world demonstrating all prefabs, materials, shaders, and companion drones.
+- **Map Test (2D ASCII Serialization)**: A multi-block town rendered directly from a 2D ASCII text blueprint using `parseAsciiMap`.
 - **ASCIITY**: A full city simulation featuring 25 traffic-controlled intersections, autonomous vehicles, walking pedestrians, and multi-tiered skyscrapers.
 
 Because the project uses standard JavaScript ES Modules, browsers require a local HTTP server to run the files.
@@ -166,6 +167,8 @@ Right-click any `index.html` in `examples/` and select **"Open with Live Server"
 
 Once your local server is running, navigate to:
 
+- **Map Test (ASCII Serialization)**:  
+  `http://localhost:8080/examples/map_test/`
 - **Templates & Prefabs Showcase**:  
   `http://localhost:8080/examples/templates_world/`
 - **ASCIITY City Simulation**:  

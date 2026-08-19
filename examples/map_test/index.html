@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!--asciilib map_test showcase-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>asciilib - Map Test</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <div id="game-container">
+    <canvas id="canvas3d"></canvas>
+    <div id="crosshair"></div>
+
+    <!--hud display-->
+    <div id="hud">
+      <div class="hud-top">
+        <div class="hud-stats">
+          <div>FPS: <span id="hud-fps">60</span></div>
+          <div>POS: <span id="hud-pos">X:0.0 Y:0.0</span></div>
+          <div>DIR: <span id="hud-compass">000° [N]</span></div>
+          <div>ENTITIES: <span id="hud-entities">0</span></div>
+        </div>
+        <div class="hud-toggles">
+          <div>MAP VIEW: <span id="hud-map-toggle">[TAB / M]</span></div>
+          <div>AUDIO: <span id="hud-audio-toggle">[K]</span></div>
+        </div>
+      </div>
+      <div class="hud-bottom">
+        <div class="hud-controls-hint">
+          [W,A,S,D] Move | [MOUSE] Look | [SPACE] Jump | [SHIFT] Sprint | [M] Toggle ASCII Blueprint | [C] Escort Drone
+        </div>
+      </div>
+    </div>
+
+    <!--2d ascii blueprint modal-->
+    <div id="map-overlay" class="map-overlay hidden">
+      <div class="ascii-blueprint-box">
+        <div class="ascii-blueprint-header">+--- 2D ASCII MAP BLUEPRINT (parseAsciiMap) ------------------+</div>
+        <pre id="ascii-map-display" class="ascii-blueprint-text"></pre>
+        <div class="ascii-blueprint-legend">
+          <span><b>#</b>/<b>B</b>/<b>H</b>: Buildings</span>
+          <span><b>=</b>: Sidewalk</span>
+          <span><b>.</b>: Road</span>
+          <span><b>T</b>: Tree</span>
+          <span><b>L</b>: Lamp</span>
+          <span><b>C</b>/<b>V</b>/<b>U</b>: Vehicles</span>
+          <span><b>D</b>: Drone</span>
+          <span><b>P</b>: Pedestrian</span>
+          <span><b>@</b>: Spawn</span>
+        </div>
+        <div class="ascii-blueprint-footer">+-------------------------------------------------------------+</div>
+      </div>
+    </div>
+
+    <!--start / pause menu overlay-->
+    <div id="play-overlay">
+      <div class="ascii-menu">
+        <div class="ascii-menu-header">+---------------------------------------------+</div>
+        <div class="ascii-menu-title">| MAP TEST - 2D ASCII SERIALIZATION |</div>
+        <div class="ascii-menu-header">+---------------------------------------------+</div>
+
+        <button type="button" id="start-game-btn" class="ascii-start-btn" onclick="startGame()">
+          [ ENTER ]
+        </button>
+
+        <div class="ascii-menu-footer">
+          <p>Zero-dependency 3D world loaded from a pure text map string.</p>
+          <p>[ESC] Menu | [M] View Source Blueprint | [C] Escort Drone</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>

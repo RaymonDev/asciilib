@@ -8,9 +8,11 @@ export { Blitter } from './core/Blitter.js';
 export { Camera } from './camera/Camera.js';
 export { FirstPersonController } from './camera/FirstPersonController.js';
 
-//scene & map raycasting
+//scene & map raycasting & serialization
 export { Scene } from './scene/Scene.js';
 export { GridMapRaycaster } from './map/GridMapRaycaster.js';
+export { parseAsciiMap, DEFAULT_MAP_LEGEND } from './map/MapParser.js';
+export { serializeScene, deserializeScene, exportAsciiMap } from './map/SceneSerializer.js';
 
 //3d primitive entities
 export { Entity } from './primitives/Entity.js';

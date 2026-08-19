@@ -7,6 +7,8 @@ export { FirstPersonController, FirstPersonControllerOptions } from './camera/Fi
 
 export { Scene, SceneOptions, FrustumQueryResult } from './scene/Scene.js';
 export { GridMapRaycaster, GridMapRaycasterOptions, RaycasterRenderOptions, WallShaderContext, FloorShaderContext, ShaderResult } from './map/GridMapRaycaster.js';
+export { parseAsciiMap, DEFAULT_MAP_LEGEND, ParseAsciiMapOptions, ParseAsciiMapResult, MapLegend, MapLegendItem, SpawnPoint } from './map/MapParser.js';
+export { serializeScene, deserializeScene, exportAsciiMap, SerializeSceneOptions, SerializedSceneData, SerializedEntityData } from './map/SceneSerializer.js';
 
 export { Entity, EntityOptions } from './primitives/Entity.js';
 export { BoxEntity, BoxEntityOptions } from './primitives/BoxEntity.js';
