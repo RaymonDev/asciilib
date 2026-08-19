@@ -31,7 +31,7 @@ flowchart LR
 Simulates light radiating in all directions from a single point (such as a street lamp bulb, torch, or explosion):
 
 ```javascript
-import { PointLight } from 'asciilib';
+import { PointLight } from 'asciilib-3d';
 
 const lampLight = new PointLight({
   x: 18.0,
@@ -51,7 +51,7 @@ scene.addLight(lampLight);
 Simulates a directional cone of light (such as a drone searchlight, flashlight, or vehicle headlight):
 
 ```javascript
-import { SpotLight } from 'asciilib';
+import { SpotLight } from 'asciilib-3d';
 
 const searchlight = new SpotLight({
   x: 20.0,
@@ -77,7 +77,7 @@ scene.addLight(searchlight);
 As light hits a surface, the character shifts smoothly across the standard luminance ramp (` .:-=+*#%@`):
 
 ```javascript
-import { modulateCharLuminance } from 'asciilib';
+import { modulateCharLuminance } from 'asciilib-3d';
 
 // In full darkness -> " " or "."
 const darkChar = modulateCharLuminance('#', 0.15); // Returns "."
@@ -91,7 +91,7 @@ const litChar = modulateCharLuminance('#', 1.2);   // Returns "#"
 Tints a surface's base color with the accumulated light color:
 
 ```javascript
-import { blendLightColor } from 'asciilib';
+import { blendLightColor } from 'asciilib-3d';
 
 // Base dark asphalt (#334155) tinted with warm lamp light
 const litColor = blendLightColor('#334155', lighting.r, lighting.g, lighting.b, lighting.intensity);

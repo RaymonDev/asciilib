@@ -45,7 +45,7 @@ A zero-dependency, pure JavaScript 3D ASCII graphics, physics, and procedural au
 ### Node.js / NPM
 
 ```bash
-npm install asciilib
+npm install asciilib-3d
 ```
 
 ### Modern ES Module Import
@@ -60,7 +60,7 @@ import {
   AudioEngine,
   ProceduralSFX,
   parseAsciiMap
-} from 'asciilib';
+} from 'asciilib-3d';
 ```
 
 ### Direct Script Tag (No Build Step)

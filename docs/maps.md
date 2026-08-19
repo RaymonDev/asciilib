@@ -17,7 +17,7 @@ flowchart LR
 ## 1. Parsing a 2D ASCII Blueprint (`parseAsciiMap`)
 
 ```javascript
-import { parseAsciiMap, Camera } from 'asciilib';
+import { parseAsciiMap, Camera } from 'asciilib-3d';
 
 const MY_TOWN = `
   ############
@@ -74,7 +74,7 @@ The built-in `DEFAULT_MAP_LEGEND` provides ready-to-use symbol mappings:
 Extend or override the legend by passing your own dictionary:
 
 ```javascript
-import { parseAsciiMap, BoxEntity } from 'asciilib';
+import { parseAsciiMap, BoxEntity } from 'asciilib-3d';
 
 const customMap = `
   XXX
@@ -106,7 +106,7 @@ const result = parseAsciiMap(customMap, {
 Save the entire live `Scene` (including all entities, building heights, tile arrays, and light sources) to a standard JSON format:
 
 ```javascript
-import { serializeScene, deserializeScene } from 'asciilib';
+import { serializeScene, deserializeScene } from 'asciilib-3d';
 
 // 1. Export Scene to JSON string
 const jsonString = serializeScene(scene, { stringify: true, indent: 2 });
@@ -122,7 +122,7 @@ const restoredScene = deserializeScene(jsonString);
 Convert any existing `Scene` back into a clean 2D ASCII character map:
 
 ```javascript
-import { exportAsciiMap } from 'asciilib';
+import { exportAsciiMap } from 'asciilib-3d';
 
 const asciiText = exportAsciiMap(scene);
 console.log(asciiText);

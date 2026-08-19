@@ -40,7 +40,7 @@ import {
   Scene,
   GridMapRaycaster,
   BoxEntity
-} from 'asciilib';
+} from 'asciilib-3d';
 
 const canvas = document.getElementById('canvas3d');
 const ctx = canvas.getContext('2d', { alpha: false });

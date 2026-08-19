@@ -1,6 +1,6 @@
 # API Reference
 
-Complete reference of all classes, functions, and interfaces exported by `asciilib`.
+Complete reference of all classes, functions, and interfaces exported by `asciilib-3d`.
 
 ---
 
@@ -13,9 +13,11 @@ Manages character and depth framebuffers and batch rasterizes to Canvas 2D.
 - `clear(defaultBg, maxDepth)`
 - `drawChar(col, row, ch, color, alpha)`
 - `drawOpaqueChar(col, row, ch, color, alpha, bg)`
+- `setChar(col, row, ch, color, bg, alpha)`
 - `setDepth(col, row, depth)`
 - `getDepth(col, row): number`
 - `blit(ctx, canvasWidth, canvasHeight, fontStyle)`
+- `renderToCanvas(ctx, canvasWidth, canvasHeight, fontStyle)`
 
 ### `Camera`
 First-person and orbital 3D camera with continuous 180º vertical pitch.

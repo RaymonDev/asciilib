@@ -22,7 +22,7 @@ flowchart TD
 At the core of the engine is the `Blitter`, which maintains an explicit character-level depth buffer and framebuffer:
 
 ```javascript
-import { Blitter } from 'asciilib';
+import { Blitter } from 'asciilib-3d';
 
 const blitter = new Blitter(160, 90, 7, 10);
 ```
@@ -66,7 +66,7 @@ blitter.blit(ctx, canvasWidth, canvasHeight, fontStyle);
 The `GridMapRaycaster` uses an extended DDA (Digital Differential Analyzer) algorithm capable of rendering **multi-tiered skyscrapers with arbitrary setbacks**:
 
 ```javascript
-import { GridMapRaycaster } from 'asciilib';
+import { GridMapRaycaster } from 'asciilib-3d';
 
 const raycaster = new GridMapRaycaster({ maxDepth: 65.0 });
 

@@ -166,8 +166,13 @@
   margin: 0 !important;
 }
 
+.md-source__facts {
+  display: none !important;
+}
+
 .md-source__repository {
-  display: inline-block !important;
+  display: inline-flex !important;
+  align-items: center !important;
   font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace !important;
   font-size: 0.72rem !important;
   font-weight: 500 !important;

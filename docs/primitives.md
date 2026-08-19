@@ -13,7 +13,7 @@ import {
   BoxEntity,
   CylinderEntity,
   EllipsoidEntity
-} from 'asciilib';
+} from 'asciilib-3d';
 ```
 
 ### BoxEntity
@@ -82,7 +82,7 @@ scene.add(sphere);
 `CompoundEntity` allows you to assemble multi-part hierarchical 3D objects containing multiple boxes, cylinders, ellipsoids, and thick line segments defined in local space:
 
 ```javascript
-import { CompoundEntity } from 'asciilib';
+import { CompoundEntity } from 'asciilib-3d';
 
 export class CyberCrateEntity extends CompoundEntity {
   constructor(options = {}) {

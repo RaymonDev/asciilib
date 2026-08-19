@@ -1,5 +1,5 @@
 {
-  "name": "asciilib",
+  "name": "asciilib-3d",
   "version": "1.0.0",
   "description": "Zero-dependency pure vanilla JavaScript 3D software rendering engine and spatial ASCII game framework.",
   "type": "module",

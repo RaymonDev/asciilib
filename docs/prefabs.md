@@ -9,7 +9,7 @@ Pre-assembled compound 3D entities featuring autonomous traffic steering, compan
 A dual-rotor surveillance drone equipped with an animated CCTV camera, blinking red recording LED, and an autonomous companion escort system:
 
 ```javascript
-import { createSurveillanceDrone } from 'asciilib';
+import { createSurveillanceDrone } from 'asciilib-3d';
 
 const drone = createSurveillanceDrone({
   x: 20.0,
@@ -50,7 +50,7 @@ import {
   createCyberCoupe,
   createCityBus,
   updateVehicleFleet
-} from 'asciilib';
+} from 'asciilib-3d';
 
 const taxi = createTaxi({ x: 25.0, y: 14.5, laneDirection: 'east' });
 const coupe = createCyberCoupe({ x: 14.5, y: 30.0, laneDirection: 'south' });
@@ -86,7 +86,7 @@ import {
   createTree,
   createStreetLamp,
   createTrafficLight
-} from 'asciilib';
+} from 'asciilib-3d';
 
 // Foliage tree with organic procedural branch forks and leaves
 const tree = createTree({ x: 12.0, y: 15.0 });
@@ -119,7 +119,7 @@ scene.add(trafficLight);
 Autonomous pedestrians patrolling sidewalks and crossing at pedestrian crosswalks:
 
 ```javascript
-import { createPedestrian, updatePedestrianFleet } from 'asciilib';
+import { createPedestrian, updatePedestrianFleet } from 'asciilib-3d';
 
 const pedestrian = createPedestrian({
   x: 15.0,

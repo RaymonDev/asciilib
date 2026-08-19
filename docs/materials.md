@@ -9,7 +9,7 @@ Bridging 3D spatial mathematics and textual art: map UV coordinates, surface nor
 An `ASCIIMaterial` defines the visual appearance (character, foreground color, background color, and lighting sensitivity) of any surface:
 
 ```javascript
-import { ASCIIMaterial } from 'asciilib';
+import { ASCIIMaterial } from 'asciilib-3d';
 
 const cyberGlass = new ASCIIMaterial({
   char: '#',
@@ -27,7 +27,7 @@ const cyberGlass = new ASCIIMaterial({
 Ready-to-use procedural materials for common architectural and industrial surfaces:
 
 ```javascript
-import { MaterialPresets } from 'asciilib';
+import { MaterialPresets } from 'asciilib-3d';
 
 // Blue reflective glass skyscraper windows
 const glass = MaterialPresets.GLASS_BLUE;
@@ -53,7 +53,7 @@ const neonAmber = MaterialPresets.NEON_AMBER;
 The `ASCIIBrush` module provides mathematical texture generators:
 
 ```javascript
-import { ASCIIBrush } from 'asciilib';
+import { ASCIIBrush } from 'asciilib-3d';
 
 // Sample animated water or ripple patterns
 const waterChar = ASCIIBrush.sampleWavePattern(u, v, time);
@@ -74,7 +74,7 @@ When rendering the grid world with `GridMapRaycaster`, you can provide custom sh
 ### Skyscraper Shader
 
 ```javascript
-import { createSkyscraperShader } from 'asciilib';
+import { createSkyscraperShader } from 'asciilib-3d';
 
 const wallShader = createSkyscraperShader({
   litColor: '#ffeaa7',       // Illuminated window color
@@ -88,7 +88,7 @@ const wallShader = createSkyscraperShader({
 ### Road & Crosswalk Floor Shader
 
 ```javascript
-import { createRoadFloorShader } from 'asciilib';
+import { createRoadFloorShader } from 'asciilib-3d';
 
 const floorShader = createRoadFloorShader({
   roadColor: '#334155',

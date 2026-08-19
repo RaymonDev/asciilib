@@ -20,7 +20,7 @@ flowchart TD
 ## 1. Initializing the Audio Engine (`AudioEngine.js`)
 
 ```javascript
-import { AudioEngine, ProceduralSFX } from 'asciilib';
+import { AudioEngine, ProceduralSFX } from 'asciilib-3d';
 
 const audio = new AudioEngine({
   masterVolume: 0.8,
@@ -130,7 +130,7 @@ function gameLoop() {
 Compose and playback multi-note 8-bit sequences:
 
 ```javascript
-import { SynthTracker } from 'asciilib';
+import { SynthTracker } from 'asciilib-3d';
 
 const tracker = new SynthTracker(audio);
 

@@ -53,11 +53,11 @@ cd asciilib
 ### 3: Package Manager (npm)
 
 ```bash
-npm install asciilib
+npm install asciilib-3d
 ```
 
 ```javascript
-import { Engine, Scene, Camera, FirstPersonController, BoxEntity } from 'asciilib';
+import { Engine, Scene, Camera, FirstPersonController, BoxEntity } from 'asciilib-3d';
 ```
 
 

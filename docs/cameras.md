@@ -7,7 +7,7 @@ Full first-person and orbital 3D spatial navigation with continuous 180º vertic
 ## 1. The `Camera` Class
 
 ```javascript
-import { Camera } from 'asciilib';
+import { Camera } from 'asciilib-3d';
 
 const camera = new Camera({
   x: 10.0,
@@ -73,7 +73,7 @@ scene.staticGrid.queryAABB(minX, minY, maxX, maxY, visibleEntities);
 A built-in first-person controller handling keyboard input, sprint modifiers, jump physics, and pointer lock:
 
 ```javascript
-import { FirstPersonController } from 'asciilib';
+import { FirstPersonController } from 'asciilib-3d';
 
 const controller = new FirstPersonController(camera, canvas, {
   walkSpeed: 4.5,
