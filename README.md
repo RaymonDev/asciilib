@@ -11,7 +11,6 @@
  ▒▒▒▒▒▒▒▒ ▒▒▒▒▒▒   ▒▒▒▒▒▒  ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒▒▒     
 </pre>
 
-# asciilib
 ### Pure JavaScript 3D ASCII Software Rendering, Physics & Web Audio Engine
 
 [![npm version](https://img.shields.io/npm/v/asciilib-3d.svg?style=flat-square&color=00f0ff&logo=npm)](https://www.npmjs.com/package/asciilib-3d)
