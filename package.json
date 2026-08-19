@@ -49,15 +49,17 @@
     }
   },
   "scripts": {
-    "test": "node test/math_spatial_test.js && node test/engine_camera_test.js && node test/scene_primitives_test.js && node test/compound_entity_test.js && node test/materials_presets_test.js && node test/audio_engine_test.js && node test/map_serialization_test.js && node test/map_test_example_test.js && node test/showcase_integrity_test.js && node test/templates_world_test.js",
+    "test": "node test/math_spatial_test.js && node test/engine_camera_test.js && node test/scene_primitives_test.js && node test/compound_entity_test.js && node test/materials_presets_test.js && node test/audio_engine_test.js && node test/lighting_system_test.js && node test/map_serialization_test.js && node test/map_test_example_test.js && node test/light_test_example_test.js && node test/showcase_integrity_test.js && node test/templates_world_test.js",
     "test:math": "node test/math_spatial_test.js",
     "test:engine": "node test/engine_camera_test.js",
     "test:scene": "node test/scene_primitives_test.js",
     "test:compound": "node test/compound_entity_test.js",
     "test:materials": "node test/materials_presets_test.js",
     "test:audio": "node test/audio_engine_test.js",
+    "test:lighting": "node test/lighting_system_test.js",
     "test:map": "node test/map_serialization_test.js",
     "test:map_example": "node test/map_test_example_test.js",
+    "test:light_example": "node test/light_test_example_test.js",
     "test:showcase": "node test/showcase_integrity_test.js",
     "test:templates": "node test/templates_world_test.js",
     "start": "npx serve .",

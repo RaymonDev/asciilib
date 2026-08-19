@@ -1,5 +1,6 @@
 //surveillance drone prefab, cctv tracking, and autonomous 45-degree overhead companion escort
 import { CompoundEntity } from '../primitives/CompoundEntity.js';
+import { SpotLight } from '../lighting/SpotLight.js';
 
 export class DroneEntity extends CompoundEntity {
   constructor(options = {}) {
@@ -24,6 +25,18 @@ export class DroneEntity extends CompoundEntity {
     this.velX = 0.0;
     this.velY = 0.0;
     this.velZ = 0.0;
+
+    //downward searchlight spotlight
+    this.light = new SpotLight({
+      x: this.x,
+      y: this.y,
+      z: this.z,
+      color: options.lightColor || '#00f0ff',
+      radius: options.lightRadius !== undefined ? options.lightRadius : 14.0,
+      intensity: options.lightIntensity !== undefined ? options.lightIntensity : 1.3,
+      angle: options.lightAngle !== undefined ? options.lightAngle : Math.PI / 4,
+      direction: { x: 0, y: 0, z: -1 }
+    });
 
     this.buildGeometry(options);
   }
@@ -261,6 +274,11 @@ export class DroneEntity extends CompoundEntity {
       this.y += (desiredY - this.y) * followRate;
       this.z += (desiredZ - this.z) * followRate;
       this.angle = this.patrolAngle + Math.PI / 2;
+    }
+
+    //sync spotlight position with drone body
+    if (this.light) {
+      this.light.setPosition(this.x, this.y, this.z);
     }
 
     //spin dual counter-rotating propellers at high speed

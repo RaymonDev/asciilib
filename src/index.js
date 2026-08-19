@@ -40,6 +40,9 @@ export * from './math/Intersection.js';
 //audio engine & procedural sfx
 export * from './audio/index.js';
 
+//dynamic lighting system
+export * from './lighting/index.js';
+
 //spatial partitioning
 export { SpatialHashGrid } from './spatial/SpatialHashGrid.js';
 

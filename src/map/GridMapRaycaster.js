@@ -137,7 +137,8 @@ export class GridMapRaycaster {
               camera
             });
             if (shaded) {
-              blitter.drawOpaqueChar(col, row, shaded.char, shaded.color, shaded.alpha || 1.0, shaded.bg || '#000000');
+              const charToDraw = shaded.char !== undefined ? shaded.char : (shaded.ch !== undefined ? shaded.ch : ' ');
+              blitter.drawOpaqueChar(col, row, charToDraw, shaded.color, shaded.alpha || 1.0, shaded.bg || '#000000');
             }
           }
         }
@@ -190,7 +191,8 @@ export class GridMapRaycaster {
             });
 
             if (shaded) {
-              blitter.drawOpaqueChar(col, row, shaded.char, shaded.color, shaded.alpha || 1.0, shaded.bg || '#000000');
+              const charToDraw = shaded.char !== undefined ? shaded.char : (shaded.ch !== undefined ? shaded.ch : ' ');
+              blitter.drawOpaqueChar(col, row, charToDraw, shaded.color, shaded.alpha || 1.0, shaded.bg || '#000000');
             }
           }
         }

@@ -38,5 +38,6 @@ export { Ray } from './math/Ray.js';
 export * from './math/Intersection.js';
 
 export * from './audio/index.js';
+export * from './lighting/index.js';
 
 export { SpatialHashGrid, SpatialEntity } from './spatial/SpatialHashGrid.js';

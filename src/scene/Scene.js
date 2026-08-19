@@ -1,6 +1,7 @@
-//scene container managing entities, map data, spatial grids, and particles
+//scene container managing entities, map data, spatial grids, lighting, and particles
 import { SpatialHashGrid } from '../spatial/SpatialHashGrid.js';
 import { ParticleSystem } from '../particles/ParticleSystem.js';
+import { parseColorRGB } from '../lighting/LightingUtils.js';
 
 export class Scene {
   constructor(options = {}) {
@@ -9,11 +10,13 @@ export class Scene {
     this.buildingHeights = options.buildingHeights || new Float32Array(this.mapSize * this.mapSize);
 
     this.entities = [];
+    this.lights = [];
     this.staticGrid = new SpatialHashGrid(options.cellSize || 8.0, this.mapSize);
     this.dynamicGrid = new SpatialHashGrid(options.cellSize || 8.0, this.mapSize);
     this.particleSystem = new ParticleSystem(options.particleOptions || {});
 
     this.ambientLight = options.ambientLight || '#ffffff';
+    this.ambientRGB = parseColorRGB(this.ambientLight);
     this.sunDirection = options.sunDirection || { x: 0.6, y: -0.3, z: 0.7 };
   }
 
@@ -24,6 +27,12 @@ export class Scene {
     } else {
       this.dynamicGrid.insert(entity, entity.boundingRadius);
     }
+
+    //auto-register light source if entity exposes one
+    if (entity.light && typeof entity.light.getLightContribution === 'function') {
+      this.addLight(entity.light);
+    }
+
     return entity;
   }
 
@@ -32,7 +41,69 @@ export class Scene {
     if (idx !== -1) {
       this.entities.splice(idx, 1);
     }
+
+    if (entity.light) {
+      this.removeLight(entity.light);
+    }
+
     return entity;
+  }
+
+  addLight(light) {
+    if (light && this.lights.indexOf(light) === -1) {
+      this.lights.push(light);
+    }
+    return light;
+  }
+
+  removeLight(light) {
+    const idx = this.lights.indexOf(light);
+    if (idx !== -1) {
+      this.lights.splice(idx, 1);
+    }
+    return light;
+  }
+
+  //calculate cumulative dynamic illumination and color tint at target world point
+  getLightingAt(targetX, targetY, targetZ = 0.0) {
+    let totalIntensity = 0.0;
+    let accR = 0.0;
+    let accG = 0.0;
+    let accB = 0.0;
+
+    for (let i = 0; i < this.lights.length; i++) {
+      const l = this.lights[i];
+      const contrib = l.getLightContribution(targetX, targetY, targetZ);
+      if (contrib) {
+        totalIntensity += contrib.intensity;
+        accR += contrib.r * contrib.intensity;
+        accG += contrib.g * contrib.intensity;
+        accB += contrib.b * contrib.intensity;
+      }
+    }
+
+    if (totalIntensity > 1e-4) {
+      const invTot = 1.0 / totalIntensity;
+      return {
+        intensity: totalIntensity,
+        r: accR * invTot,
+        g: accG * invTot,
+        b: accB * invTot
+      };
+    }
+
+    return {
+      intensity: 0.0,
+      r: this.ambientRGB[0],
+      g: this.ambientRGB[1],
+      b: this.ambientRGB[2]
+    };
+  }
+
+  //get normalized light factor incorporating ambient floor
+  getLightLevel(targetX, targetY, targetZ = 0.0, ambientFloor = 0.30) {
+    const lighting = this.getLightingAt(targetX, targetY, targetZ);
+    return Math.min(2.5, ambientFloor + lighting.intensity);
   }
 
   rebuildStaticGrid() {

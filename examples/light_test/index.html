@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!--asciilib light_test showcase-->
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>asciilib - Light Test</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <div id="game-container">
+    <canvas id="canvas3d"></canvas>
+    <div id="crosshair"></div>
+
+    <!--hud display-->
+    <div id="hud">
+      <div class="hud-top">
+        <div class="hud-stats">
+          <div>FPS: <span id="hud-fps">60</span></div>
+          <div>POS: <span id="hud-pos">X:0.0 Y:0.0</span></div>
+          <div>DIR: <span id="hud-compass">000° [N]</span></div>
+          <div>LIGHT LEVEL: <span id="hud-lux">100%</span></div>
+          <div>ACTIVE LIGHTS: <span id="hud-lights-count">4</span></div>
+        </div>
+        <div class="hud-toggles">
+          <div>[F] FLASHLIGHT: <span id="hud-flashlight-status">[ON]</span></div>
+          <div>[T] AMBIENT TIME: <span id="hud-time-status">[NIGHT]</span></div>
+          <div>[1] STREET LAMPS: <span id="hud-lamps-status">[ON]</span></div>
+          <div>[2] DRONE SPOTLIGHT: <span id="hud-drone-status">[ON]</span></div>
+          <div>[3] PULSING BEACON: <span id="hud-beacon-status">[ON]</span></div>
+        </div>
+      </div>
+      <div class="hud-bottom">
+        <div class="hud-controls-hint">
+          [W,A,S,D] Move | [MOUSE] Look | [F] Flashlight | [T] Day/Night | [1,2,3] Toggle Lights | [C] Escort Drone | [SPACE] Jump
+        </div>
+      </div>
+    </div>
+
+    <!--start / pause menu overlay-->
+    <div id="play-overlay">
+      <div class="ascii-menu">
+        <div class="ascii-menu-header">+---------------------------------------------+</div>
+        <div class="ascii-menu-title">| LIGHT TEST - DYNAMIC 3D LIGHTING |</div>
+        <div class="ascii-menu-header">+---------------------------------------------+</div>
+
+        <button type="button" id="start-game-btn" class="ascii-start-btn" onclick="startGame()">
+          [ ENTER ]
+        </button>
+
+        <div class="ascii-menu-footer">
+          <p>Real-time Euclidean point lights, drone searchlights, and flashlight beam.</p>
+          <p>[F] Flashlight | [T] Day/Night Mode | [C] Escort Drone</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+
+</html>

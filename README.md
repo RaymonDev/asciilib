@@ -126,8 +126,9 @@ engine.start(
 ## Running the Examples
 
 The repository includes showcase projects demonstrating different aspects of `asciilib`:
-- **Templates World**: A showcase world demonstrating all prefabs, materials, shaders, and companion drones.
+- **Light Test (Dynamic 3D Lighting)**: Real-time Euclidean point lights, drone searchlights, flashlight beams, and Day/Night cycles.
 - **Map Test (2D ASCII Serialization)**: A multi-block town rendered directly from a 2D ASCII text blueprint using `parseAsciiMap`.
+- **Templates World**: A showcase world demonstrating all prefabs, materials, shaders, and companion drones.
 - **ASCIITY**: A full city simulation featuring 25 traffic-controlled intersections, autonomous vehicles, walking pedestrians, and multi-tiered skyscrapers.
 
 Because the project uses standard JavaScript ES Modules, browsers require a local HTTP server to run the files.
@@ -167,6 +168,8 @@ Right-click any `index.html` in `examples/` and select **"Open with Live Server"
 
 Once your local server is running, navigate to:
 
+- **Light Test (Dynamic Lighting)**:  
+  `http://localhost:8080/examples/light_test/`
 - **Map Test (ASCII Serialization)**:  
   `http://localhost:8080/examples/map_test/`
 - **Templates & Prefabs Showcase**:  

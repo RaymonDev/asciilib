@@ -1,5 +1,6 @@
 //street furniture prefabs: foliage trees, street lamps, and traffic signals
 import { Entity } from '../primitives/Entity.js';
+import { PointLight } from '../lighting/PointLight.js';
 import {
   intersectRayCylinder,
   intersectRayEllipsoid,
@@ -167,6 +168,17 @@ export class StreetLightEntity extends Entity {
     this.headX = options.headX || (this.x + 1.0);
     this.headY = options.headY || this.y;
     this.boundingRadius = 1.8;
+
+    //attach warm point light at lantern position
+    this.light = new PointLight({
+      x: this.headX,
+      y: this.headY,
+      z: 2.85,
+      color: options.lightColor || '#ffeaa7',
+      radius: options.lightRadius !== undefined ? options.lightRadius : 9.0,
+      intensity: options.lightIntensity !== undefined ? options.lightIntensity : 1.1,
+      decay: options.lightDecay !== undefined ? options.lightDecay : 1.0
+    });
   }
 
   render(camera, blitter, scene, planar, horizon) {
