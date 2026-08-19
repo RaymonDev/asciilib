@@ -57,6 +57,15 @@ export class Blitter {
     this.frameBgs[idx] = bg;
   }
 
+  setChar(col, row, ch, color = '#ffffff', bg = '#000000', alpha = 1.0) {
+    if (col < 0 || col >= this.cols || row < 0 || row >= this.rows) return;
+    const idx = col * this.rows + row;
+    this.frameCharCodes[idx] = typeof ch === 'number' ? ch : ch.charCodeAt(0);
+    this.frameColors[idx] = color;
+    this.frameBgs[idx] = bg || '#000000';
+    this.frameAlphas[idx] = alpha;
+  }
+
   setDepth(col, row, depth) {
     if (col < 0 || col >= this.cols || row < 0 || row >= this.rows) return;
     this.pixelDepthBuffer[col * this.rows + row] = depth;
@@ -65,6 +74,10 @@ export class Blitter {
   getDepth(col, row) {
     if (col < 0 || col >= this.cols || row < 0 || row >= this.rows) return Infinity;
     return this.pixelDepthBuffer[col * this.rows + row];
+  }
+
+  renderToCanvas(ctx, canvasWidth = this.cols * this.charWidth, canvasHeight = this.rows * this.charHeight, fontStyle = '900 10px monospace') {
+    this.blit(ctx, canvasWidth, canvasHeight, fontStyle);
   }
 
   blit(ctx, canvasWidth = this.cols * this.charWidth, canvasHeight = this.rows * this.charHeight, fontStyle = '900 10px monospace') {

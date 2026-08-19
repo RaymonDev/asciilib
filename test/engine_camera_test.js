@@ -32,6 +32,14 @@ assert.strictEqual(blitter.frameCharCodes[idx], '#'.charCodeAt(0));
 assert.strictEqual(blitter.frameColors[idx], '#00ff88');
 assert.strictEqual(blitter.frameBgs[idx], '#0f172a');
 
+//setChar direct writing
+blitter.setChar(12, 12, '@', '#ff0055', '#1e293b', 0.9);
+const idxSet = 12 * 40 + 12;
+assert.strictEqual(blitter.frameCharCodes[idxSet], '@'.charCodeAt(0));
+assert.strictEqual(blitter.frameColors[idxSet], '#ff0055');
+assert.strictEqual(blitter.frameBgs[idxSet], '#1e293b');
+assert.ok(Math.abs(blitter.frameAlphas[idxSet] - 0.9) < 0.001);
+
 //clear resets buffers
 blitter.clear('#000000', 32.0);
 assert.strictEqual(blitter.frameCharCodes[idx], 32);
