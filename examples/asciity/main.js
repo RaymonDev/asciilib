@@ -3,7 +3,9 @@ import {
   Blitter,
   Camera,
   Scene,
-  GridMapRaycaster
+  GridMapRaycaster,
+  AudioEngine,
+  ProceduralSFX
 } from '../../src/index.js';
 
 import {
@@ -24,6 +26,8 @@ import { createPedestrians, updatePedestrianFleet } from './entities/Pedestrian.
 const DEFAULT_CONFIG = {
   traffic: true,
   particles: true,
+  sound: true,
+  soundVolume: 80,
   showHud: false,
   showCrosshair: true,
   playerHeight: 1.00,
@@ -32,6 +36,14 @@ const DEFAULT_CONFIG = {
 };
 
 const config = { ...DEFAULT_CONFIG };
+
+//initialize audio engine and procedural sound synthesizers
+const audio = new AudioEngine({
+  muted: !config.sound,
+  masterVolume: (config.soundVolume !== undefined ? config.soundVolume : 80) / 100
+});
+const sfx = new ProceduralSFX(audio);
+let cityHum = null;
 
 function loadSavedConfig() {
   try {
@@ -202,8 +214,11 @@ document.addEventListener('mousemove', (e) => {
   }
 });
 
-function updatePlayer() {
-  const moveSpeed = (keys['ShiftLeft'] || keys['ShiftRight']) ? player.speed * 1.8 : player.speed;
+let footstepTimer = 0;
+
+function updatePlayer(dt = 0.016) {
+  const isSprinting = (keys['ShiftLeft'] || keys['ShiftRight']);
+  const moveSpeed = isSprinting ? player.speed * 1.8 : player.speed;
   let moveX = 0;
   let moveY = 0;
 
@@ -242,6 +257,19 @@ function updatePlayer() {
   }
   if (keys['PageDown']) {
     camera.pitch = Math.max(-3.2, camera.pitch - 0.05);
+  }
+
+  //procedural footsteps while walking/sprinting
+  const isMoving = (Math.abs(moveX) > 1e-4 || Math.abs(moveY) > 1e-4);
+  if (isMoving && player.isGrounded) {
+    footstepTimer += dt;
+    const stepInterval = isSprinting ? 0.28 : 0.40;
+    if (footstepTimer >= stepInterval) {
+      sfx.playFootstep('concrete', { volume: isSprinting ? 0.32 : 0.20 });
+      footstepTimer = 0;
+    }
+  } else {
+    footstepTimer = Math.min(footstepTimer, 0.15);
   }
 
   //building wall collision
@@ -292,6 +320,7 @@ function updatePlayer() {
   if ((keys['Space'] || keys['KeyJ']) && player.isGrounded) {
     player.vz = 0.125;
     player.isGrounded = false;
+    sfx.playJump({ volume: 0.35 });
   }
 
   if (!player.isGrounded) {
@@ -301,6 +330,7 @@ function updatePlayer() {
       camera.z = targetBaseZ;
       player.vz = 0;
       player.isGrounded = true;
+      sfx.playLand({ volume: 0.40 });
     }
   } else {
     camera.z += (targetBaseZ - camera.z) * 0.2;
@@ -428,6 +458,30 @@ function syncConfigUI() {
     else crossBtn.classList.add('off');
   }
 
+  const audioBtn = document.getElementById('cfg-audio-btn');
+  const audioVal = document.getElementById('cfg-audio-val');
+  if (audioBtn && audioVal) {
+    audioVal.textContent = config.sound ? 'ON' : 'OFF';
+    if (config.sound) audioBtn.classList.remove('off');
+    else audioBtn.classList.add('off');
+  }
+
+  const volSlider = document.getElementById('cfg-volume-slider');
+  const volVal = document.getElementById('cfg-volume-val');
+  if (volSlider && volVal) {
+    const vol = config.soundVolume !== undefined ? config.soundVolume : 80;
+    volSlider.value = vol;
+    volVal.textContent = `${Math.round(vol)}%`;
+  }
+
+  //apply audio mute & volume
+  if (config.sound) {
+    audio.unmute();
+    audio.setMasterVolume((config.soundVolume !== undefined ? config.soundVolume : 80) / 100);
+  } else {
+    audio.mute();
+  }
+
   const hSlider = document.getElementById('cfg-height-slider');
   const hVal = document.getElementById('cfg-height-val');
   if (hSlider && hVal) {
@@ -455,6 +509,14 @@ function startGame() {
   isPaused = false;
   applyConfig();
 
+  //unlock web audio and start atmospheric ambient city hum
+  audio.unlock();
+  sfx.playUiBeep('confirm');
+
+  if (!cityHum && config.sound) {
+    cityHum = sfx.createAmbientCityHum({ humVolume: 0.22, windVolume: 0.15 });
+  }
+
   const overlay = document.getElementById('play-overlay');
   if (overlay) overlay.style.display = 'none';
 
@@ -470,6 +532,12 @@ function pauseGame() {
   isPaused = true;
   for (const k in keys) keys[k] = false;
 
+  sfx.playUiBeep('cancel');
+  if (cityHum) {
+    cityHum.stop();
+    cityHum = null;
+  }
+
   const overlay = document.getElementById('play-overlay');
   const startBtn = document.getElementById('start-game-btn');
   if (startBtn) startBtn.textContent = '[ CONTINUE ]';
@@ -483,6 +551,7 @@ function pauseGame() {
 
 function toggleConfigDropdown(e) {
   if (e) e.stopPropagation();
+  sfx.playUiBeep('click');
   const panel = document.getElementById('ascii-config-panel');
   const symbol = document.getElementById('config-dropdown-symbol');
   if (panel && symbol) {
@@ -499,30 +568,53 @@ function toggleConfigDropdown(e) {
 
 function restoreDefaultConfig(e) {
   if (e) e.stopPropagation();
+  sfx.playUiBeep('click');
   Object.assign(config, DEFAULT_CONFIG);
   applyConfig();
 }
 
 function toggleConfigTraffic(e) {
   if (e) e.stopPropagation();
+  sfx.playUiBeep('click');
   config.traffic = !config.traffic;
   applyConfig();
 }
 
 function toggleConfigParticles(e) {
   if (e) e.stopPropagation();
+  sfx.playUiBeep('click');
   config.particles = !config.particles;
+  applyConfig();
+}
+
+function toggleConfigAudio(e) {
+  if (e) e.stopPropagation();
+  sfx.playUiBeep('click');
+  config.sound = !config.sound;
+  if (config.sound && !cityHum && !isPaused) {
+    cityHum = sfx.createAmbientCityHum({ humVolume: 0.22, windVolume: 0.15 });
+  } else if (!config.sound && cityHum) {
+    cityHum.stop();
+    cityHum = null;
+  }
+  applyConfig();
+}
+
+function updateConfigVolume(val) {
+  config.soundVolume = parseFloat(val);
   applyConfig();
 }
 
 function toggleConfigHud(e) {
   if (e) e.stopPropagation();
+  sfx.playUiBeep('click');
   config.showHud = !config.showHud;
   applyConfig();
 }
 
 function toggleConfigCrosshair(e) {
   if (e) e.stopPropagation();
+  sfx.playUiBeep('click');
   config.showCrosshair = !config.showCrosshair;
   applyConfig();
 }
@@ -548,6 +640,8 @@ if (typeof window !== 'undefined') {
   window.toggleConfigDropdown = toggleConfigDropdown;
   window.toggleConfigTraffic = toggleConfigTraffic;
   window.toggleConfigParticles = toggleConfigParticles;
+  window.toggleConfigAudio = toggleConfigAudio;
+  window.updateConfigVolume = updateConfigVolume;
   window.toggleConfigHud = toggleConfigHud;
   window.toggleConfigCrosshair = toggleConfigCrosshair;
   window.updateConfigHeight = updateConfigHeight;
@@ -569,8 +663,9 @@ function gameLoop(now) {
 
   if (!isPaused) {
     updateTrafficSimulation(dt);
-    updatePlayer();
+    updatePlayer(dt);
     scene.update(dt);
+    audio.updateListener(camera);
   }
 
   //render world

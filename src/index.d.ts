@@ -35,4 +35,6 @@ export { Vector3 } from './math/Vector3.js';
 export { Ray } from './math/Ray.js';
 export * from './math/Intersection.js';
 
+export * from './audio/index.js';
+
 export { SpatialHashGrid, SpatialEntity } from './spatial/SpatialHashGrid.js';

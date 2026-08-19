@@ -35,5 +35,9 @@ export { Vector3 } from './math/Vector3.js';
 export { Ray } from './math/Ray.js';
 export * from './math/Intersection.js';
 
+//audio engine & procedural sfx
+export * from './audio/index.js';
+
 //spatial partitioning
 export { SpatialHashGrid } from './spatial/SpatialHashGrid.js';
+

@@ -81,6 +81,24 @@
               </button>
             </div>
 
+            <!-- sound audio toggle -->
+            <div class="ascii-config-row">
+              <span>SOUND EFFECTS (SFX):</span>
+              <button type="button" id="cfg-audio-btn" class="ascii-btn" onclick="toggleConfigAudio()">
+                [ <span id="cfg-audio-val">ON</span> ]
+              </button>
+            </div>
+
+            <!-- audio volume slider -->
+            <div class="ascii-slider-group">
+              <div class="ascii-slider-header">
+                <span>AUDIO VOLUME:</span>
+                <span id="cfg-volume-val" class="ascii-val">80%</span>
+              </div>
+              <input type="range" id="cfg-volume-slider" min="0" max="100" step="5" value="80"
+                oninput="updateConfigVolume(this.value)">
+            </div>
+
             <!-- player height -->
             <div class="ascii-slider-group">
               <div class="ascii-slider-header">
