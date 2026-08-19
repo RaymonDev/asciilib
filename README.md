@@ -9,48 +9,51 @@
  ███▒▒███  ▒▒▒▒███▒███  ███ ▒███  ▒███  ▒███  ▒███  ▒███ ▒███   
 ▒▒████████ ██████ ▒▒██████  █████ █████ █████ █████ ████████    
  ▒▒▒▒▒▒▒▒ ▒▒▒▒▒▒   ▒▒▒▒▒▒  ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒▒▒     
-                                                                 
 </pre>
 
-**A zero-dependency, pure vanilla JavaScript 3D software rendering engine and spatial game framework.**
+# asciilib
+### Pure JavaScript 3D ASCII Software Rendering, Physics & Web Audio Engine
 
-[![Pure Vanilla JS](https://img.shields.io/badge/language-Vanilla%20ES6+-F7DF1E.svg?style=flat-square&logo=javascript&logoColor=black)](#)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/asciilib-3d.svg?style=flat-square&color=00f0ff&logo=npm)](https://www.npmjs.com/package/asciilib-3d)
+[![Read the Docs](https://img.shields.io/readthedocs/asciilib?style=flat-square&logo=readthedocs&logoColor=white&color=2ed573)](https://asciilib.readthedocs.io/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](./CONTRIBUTING.md)
 
-[Live Demo](https://raymondev.github.io/asciilib/) • [Installation](#installation) • [Quickstart](#quickstart) • [Features](#features) • [Running the Examples](#running-the-examples) • [Controls](#controls) • [License](#license)
-
-
+[Documentation](https://asciilib.readthedocs.io/) • [Live Demos](#interactive-live-demos) • [Installation](#installation) • [Quickstart](#quickstart) • [Architecture](#engine-architecture) • [Contributing](#contributing)
 
 </div>
 
-## Overview
+---
 
-**`asciilib`** is a modular, high-performance software 3D rendering engine built with pure mathematics and standard ASCII characters (ASCII 32–126).
+## What is asciilib?
 
-It turns a standard HTML5 Canvas 2D context into a full 3D software rasterization pipeline capable of rendering cities, 3D geometry, vehicles, characters, and particle effects without external 3D asset files or textures.
+**`asciilib`** is a modular, zero-dependency software 3D rendering engine and game framework engineered in pure JavaScript. It transforms a standard HTML5 Canvas 2D context into a complete 3D graphics pipeline powered entirely by analytical mathematics and standard ASCII character grids.
 
+Without requiring WebGL, Three.js, or external 3D asset files, `asciilib` delivers:
+- **Full 3D Software Rasterization** with character-level floating-point depth testing (**Z-Buffer**).
+- **2.5D DDA Raycasting** with multi-tiered stepped architectural geometry.
+- **Dynamic 3D Lighting** with Euclidean point lights, spotlights, flashlight cones, and character density modulation.
+- **Procedural Web Audio Engine** for synthesized sound effects, vehicle engine pitches, footsteps, and binaural 3D HRTF spatialization.
+- **2D ASCII Map Serialization** to build full 3D interactive cities and dungeons directly from plain text strings.
 
+---
+
+## Interactive Live Demos
+
+Experience `asciilib` running live directly in your browser:
+
+| Showcase | Description | Live Link |
+| :--- | :--- | :---: |
+| **ASCIITY Metropolis** | Cyberpunk metropolis with 25 intersections, autonomous traffic AI, pedestrians, and skyscrapers | [Launch Demo](https://raymondev.github.io/asciilib/examples/asciity/) |
+| **Templates World** | Comprehensive showcase with all 3D primitives, procedural materials, and companion drone AI | [Launch Demo](https://raymondev.github.io/asciilib/examples/templates_world/) |
+| **Dynamic 3D Lighting** | Real-time Euclidean point lights, drone searchlights, flashlight beams, and Day/Night cycles | [Launch Demo](https://raymondev.github.io/asciilib/examples/light_test/) |
+| **2D ASCII Map Test** | Multi-block town rendered directly from a 2D ASCII text blueprint | [Launch Demo](https://raymondev.github.io/asciilib/examples/map_test/) |
+
+---
 
 ## Installation
 
-You can use `asciilib` directly in your project using standard ES Modules:
-
-### 1: Direct Local Import (Recommended)
-
-Copy the `src/` directory into your project and import the modules:
-
-```javascript
-import { Engine, Scene, Camera, FirstPersonController, BoxEntity } from './src/index.js';
-```
-
-### 2: Clone the Repository
-
-```bash
-git clone https://github.com/RaymonDev/asciilib.git
-cd asciilib
-```
-
-### 3: Package Manager (npm)
+### Package Manager (npm)
 
 ```bash
 npm install asciilib-3d
@@ -60,11 +63,20 @@ npm install asciilib-3d
 import { Engine, Scene, Camera, FirstPersonController, BoxEntity } from 'asciilib-3d';
 ```
 
+### Modern ES Module / Direct Script (Zero Build Step)
 
+```html
+<canvas id="canvas3d"></canvas>
+<script type="module">
+  import { Engine, Scene, Camera, FirstPersonController, BoxEntity } from './src/index.js';
+</script>
+```
+
+---
 
 ## Quickstart
 
-Here is a complete working example in under 20 lines of code:
+Build and run an interactive 3D ASCII world in under 30 lines of code:
 
 ```javascript
 import {
@@ -73,8 +85,8 @@ import {
   Camera,
   FirstPersonController,
   BoxEntity,
-  GridMapRaycaster
-} from './src/index.js';
+  PointLight
+} from 'asciilib-3d';
 
 // 1. Initialize canvas, engine & scene
 const canvas = document.getElementById('canvas3d');
@@ -82,135 +94,109 @@ const engine = new Engine({ canvas, cols: 160, rows: 90 });
 const scene = new Scene({ mapSize: 80 });
 
 // 2. Setup camera & first-person controller
-const camera = new Camera({ x: 10, y: 10, z: 1.0, fov: 75 });
+const camera = new Camera({ x: 10, y: 10, z: 1.10, fov: 70 });
 const controller = new FirstPersonController(camera, canvas);
 
-// 3. Add 3D entities to the world
-const cyberBox = new BoxEntity({
+// 3. Add 3D entities & dynamic lighting
+const box = new BoxEntity({
   x: 15, y: 10, z: 0,
   sizeX: 2.0, sizeY: 2.0, sizeZ: 2.0,
   char: '#', color: '#00f0ff', bg: '#042730'
 });
-scene.add(cyberBox);
+scene.add(box);
 
-// 4. Start the game loop
-const raycaster = new GridMapRaycaster();
+const light = new PointLight({
+  x: 12, y: 10, z: 2.5,
+  color: '#ffeaa7', radius: 8.0, intensity: 1.2
+});
+scene.addLight(light);
+
+// 4. Start 60 FPS game loop
 engine.start(
   (dt) => {
-    controller.update(dt);
+    controller.update(dt, scene);
     scene.update(dt);
   },
   (ctx) => {
-    // Render pipeline
+    // Single-pass batched render to Canvas 2D
   }
 );
 ```
 
+---
 
+## Key Features
 
-## Features
+- **Zero Dependencies**: Pure vanilla JavaScript running natively in any browser with no heavy binaries or WebGL overhead.
+- **Fast 3D Rasterization & Z-Buffer**: Floating-point depth testing prevents character bleeding and enables accurate front-to-back sorting.
+- **Batched 2D Blitter**: Groups identical character colors across horizontal spans, cutting canvas fillStyle draw calls by over 90%.
+- **3D Primitives & Compound Hierarchies**: Analytical ray-geometry intersections for boxes, cylinders, ellipsoids, and multi-part `CompoundEntity` graphs.
+- **Dynamic 3D Lighting**: Omnidirectional point lights and directional spotlights with Euclidean falloff and character density ramp modulation (` .:-=+*#%@`).
+- **Procedural Web Audio Engine**: Zero-file audio synthesis powered purely by native Web Audio API oscillators, noise buffers, and 3D HRTF positional panners.
+- **2D ASCII Map Serialization**: Parse complete 3D levels from plain text string blueprints with automatic collisions, shaders, and entity registration.
+- **Simulation Prefabs**: Autonomous surveillance drones with companion escort AI, traffic-following vehicles, pedestrians, and interactive street furniture.
+- **First-Person Controls**: Built-in locomotion (WASD, sprint, crouch, jump) and 360º yaw with 180º vertical pitch and Pointer Lock.
+- **Spatial Partitioning**: 2D `SpatialHashGrid` for instant broadphase collision queries and frustum culling.
+- **TypeScript Support**: Full `.d.ts` declaration coverage across all modules.
 
-- **Zero Dependencies**: Pure vanilla JavaScript running directly on HTML5 Canvas 2D.
-- **Planar Camera & Raycasting**: Fisheye-free perspective projection with full pitch, yaw, and FOV control.
-- **Z-Buffer & Occlusion**: Floating-point depth buffer for accurate front-to-back rendering.
-- **Spatial Hash Grid**: Built-in 2D spatial partitioning and frustum culling.
-- **3D Primitives & Compound Models**: Support for boxes, cylinders, ellipsoids, line segments, and hierarchical multi-part compound entities.
-- **Materials & Prefabs**: Ready-to-use ASCII materials, procedural shaders, vehicle fleets, pedestrians, surveillance drones, and street furniture.
-- **Grid Map Raycaster**: Fast DDA raycasting for multi-tiered buildings and inverse-perspective floor/ceiling rendering.
-- **Particle System**: 3D particle emitters for steam, sparks, and atmospheric rain effects.
-- **First-Person Controls**: Built-in locomotion (WASD, sprint, crouch, jump) and 360-degree mouse look with Pointer Lock.
-- **Batched Canvas Blitter**: Optimized horizontal run-length batching that reduces canvas draw calls by over 90%.
-
-
-
-## Running the Examples
-
-The repository includes showcase projects demonstrating different aspects of `asciilib`:
-- **Light Test (Dynamic 3D Lighting)**: Real-time Euclidean point lights, drone searchlights, flashlight beams, and Day/Night cycles.
-- **Map Test (2D ASCII Serialization)**: A multi-block town rendered directly from a 2D ASCII text blueprint using `parseAsciiMap`.
-- **Templates World**: A showcase world demonstrating all prefabs, materials, shaders, and companion drones.
-- **ASCIITY**: A full city simulation featuring 25 traffic-controlled intersections, autonomous vehicles, walking pedestrians, and multi-tiered skyscrapers.
-
-Because the project uses standard JavaScript ES Modules, browsers require a local HTTP server to run the files.
-
-### Option 1: Live Web Demo (No Setup)
-
-Open directly in your web browser:  
-**[https://raymondev.github.io/asciilib/](https://raymondev.github.io/asciilib/)**
-
-### Option 2: Using Node.js / npx (Local Development)
-
-```bash
-# Using 'serve'
-npx serve .
-
-# Or using 'http-server'
-npx http-server . -p 8080
-```
-
-### Option 2: Using Python
-
-```bash
-# Python 3:
-python -m http.server 8080
-
-# Python 2 (legacy):
-python -m SimpleHTTPServer 8080
-```
-
-### Option 3: VS Code / Cursor
-
-Right-click any `index.html` in `examples/` and select **"Open with Live Server"**.
-
-
-
-### Example URLs
-
-Once your local server is running, navigate to:
-
-- **Light Test (Dynamic Lighting)**:  
-  `http://localhost:8080/examples/light_test/`
-- **Map Test (ASCII Serialization)**:  
-  `http://localhost:8080/examples/map_test/`
-- **Templates & Prefabs Showcase**:  
-  `http://localhost:8080/examples/templates_world/`
-- **ASCIITY City Simulation**:  
-  `http://localhost:8080/examples/asciity/`
-- **Legacy Standalone Reference Demo**:  
-  `http://localhost:8080/`
-
-
+---
 
 ## Controls
 
-| Key / Input | Action |
+| Input | Action |
 | :--- | :--- |
 | **`W` `A` `S` `D`** / **Arrow Keys** | Move Forward / Left / Backward / Right |
-| **Mouse** | 360° Free Look (Yaw & Pitch) |
-| **`Space`** / **`J`** | Jump |
+| **Mouse** | 360º Free Look (Yaw) & 180º Continuous Tilt (Pitch) |
+| **`Space`** | Jump |
 | **`Shift`** | Sprint |
-| **`C`** | Crouch / Drone Companion Toggle |
-| **`P`** | Toggle Autonomous Traffic |
-| **`ESC`** | Pause Game / Open Configuration Menu |
+| **`C`** | Toggle Companion Drone Escort |
+| **`ESC`** | Release Pointer Lock |
 
+---
 
+## Documentation
+
+Full API guides, architecture breakdowns, and interactive diagrams are available at:
+
+**[https://asciilib.readthedocs.io/](https://asciilib.readthedocs.io/)**
+
+- [Quickstart Guide](https://asciilib.readthedocs.io/quickstart/)
+- [3D Pipeline & Blitter](https://asciilib.readthedocs.io/rendering/)
+- [Cameras & Controls](https://asciilib.readthedocs.io/cameras/)
+- [3D Primitives & Compound Entities](https://asciilib.readthedocs.io/primitives/)
+- [Materials & Shaders](https://asciilib.readthedocs.io/materials/)
+- [Dynamic 3D Lighting](https://asciilib.readthedocs.io/lighting/)
+- [Procedural Web Audio](https://asciilib.readthedocs.io/audio/)
+- [2D ASCII Maps](https://asciilib.readthedocs.io/maps/)
+- [Simulation Prefabs](https://asciilib.readthedocs.io/prefabs/)
+- [API Reference](https://asciilib.readthedocs.io/api_reference/)
+
+---
 
 ## Testing
 
-To run the automated unit and integration tests:
+Run the automated test suite across all 12 modules:
 
 ```bash
-node test/math_spatial_test.js
-node test/engine_camera_test.js
-node test/scene_primitives_test.js
-node test/compound_entity_test.js
-node test/materials_presets_test.js
-node test/showcase_integrity_test.js
-node test/templates_world_test.js
+npm test
 ```
 
+---
 
+## Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/RaymonDev/asciilib/issues).
+
+Please read our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) before submitting pull requests.
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed release notes and version history.
+
+---
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE) — see the [LICENSE](LICENSE) file for details.

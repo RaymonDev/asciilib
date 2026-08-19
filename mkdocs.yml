@@ -1,5 +1,6 @@
 site_name: asciilib
 site_description: Zero-dependency, pure JavaScript 3D ASCII graphics, physics, and procedural audio engine.
+site_author: RaymonDev
 site_url: https://asciilib.readthedocs.io/
 repo_url: https://github.com/RaymonDev/asciilib
 repo_name: RaymonDev/asciilib
